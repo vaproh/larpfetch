@@ -8,7 +8,7 @@ import sys
 from typing import Any
 
 from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
-from larpfetch.logos import LOGO_ART, LOGO_COLORS, get_logo_width, select_logo
+from larpfetch.logos import LOGO_ART, LOGO_COLORS, _normalize, get_logo_width, select_logo
 from larpfetch.models import SystemInfo
 
 # Original ANSI color values (never mutated)
@@ -89,6 +89,7 @@ def _resolve_logo(
     real: SystemInfo,
     real_shit: bool,
     use_color: bool,
+    small: bool = False,
 ) -> tuple[list[str], list[str]]:
     """Resolve which logo to use, returning (art, colors).
 
@@ -99,6 +100,10 @@ def _resolve_logo(
     """
     if real_shit:
         display_os = real.get("os", real.get("distro", "Unknown"))
+        if small:
+            small_key = f"{_normalize(display_os)}_small"
+            if small_key in LOGO_ART:
+                return list(LOGO_ART[small_key]), LOGO_COLORS.get(small_key, [])
         art, logo_colors = select_logo(display_os)
         return list(art), logo_colors
 
@@ -107,6 +112,10 @@ def _resolve_logo(
     if logo_ref:
         # If it matches a built-in logo name, use it
         if logo_ref in LOGO_ART:
+            if small:
+                small_key = f"{logo_ref}_small"
+                if small_key in LOGO_ART:
+                    return list(LOGO_ART[small_key]), LOGO_COLORS.get(small_key, [])
             return list(LOGO_ART[logo_ref]), LOGO_COLORS.get(logo_ref, [])
         # Otherwise, treat as newline-separated custom art (no colors)
         if "\n" in logo_ref:
@@ -114,6 +123,10 @@ def _resolve_logo(
 
     # Fall back to OS-based selection (prefer distro if set to a non-real value)
     display_os = info.get("distro") or info.get("os", "Unknown")
+    if small:
+        small_key = f"{_normalize(display_os)}_small"
+        if small_key in LOGO_ART:
+            return list(LOGO_ART[small_key]), LOGO_COLORS.get(small_key, [])
     art, logo_colors = select_logo(display_os)
     return list(art), logo_colors
 
@@ -123,6 +136,7 @@ def render(
     real: SystemInfo,
     real_shit: bool,
     appearance: dict[str, Any] | None = None,
+    small: bool = False,
 ) -> str:
     """Render the full larpfetch output."""
     appearance = appearance or {}
@@ -133,7 +147,11 @@ def render(
 
     colors = _get_colors(use_color)
 
-    logo_raw, logo_colors = _resolve_logo(info, real, real_shit, use_color)
+    # Config can also set small
+    if not small:
+        small = appearance.get("small", False)
+
+    logo_raw, logo_colors = _resolve_logo(info, real, real_shit, use_color, small=small)
     logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)
     logo_width = get_logo_width(logo)

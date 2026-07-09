@@ -137,6 +137,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="LARP as a specific distro (e.g. gentoo, fedora, nixos)",
     )
     parser.add_argument(
+        "--small",
+        action="store_true",
+        help="Use small ASCII art variant of the logo",
+    )
+    parser.add_argument(
         "--color",
         action="store_true",
         default=None,
@@ -222,7 +227,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     )
 
     # Render
-    output = render(resolved, real, args.real_shit, appearance)
+    output = render(resolved, real, args.real_shit, appearance, small=args.small)
     print(output)
 
 

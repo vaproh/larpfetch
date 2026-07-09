@@ -27,6 +27,8 @@ pipx install larpfetch
 larpfetch                    # Show real system info with auto-detected logo
 larpfetch -p nasa            # LARP as NASA Linux
 larpfetch -p hacker          # Become a Parrot OS hacker
+larpfetch --distro gentoo    # LARP as a specific distro
+larpfetch --small            # Use small ASCII art
 larpfetch --real-shit        # Show only real detected values
 larpfetch --list-profiles    # List all available profiles
 larpfetch --show-config      # Show current configuration
@@ -37,6 +39,7 @@ larpfetch --show-config      # Show current configuration
 ```bash
 larpfetch --set cpu="Quantum Potato 9000"
 larpfetch --set os="Windows 11 Pro" --set kernel="6.18.7-arch1-1"
+larpfetch --distro fedora --set os="Fedora Linux"
 ```
 
 Custom fields are supported. Unknown fields display with auto-formatted labels.
@@ -92,6 +95,7 @@ logo = """\
 color = true
 show_authenticity = true
 easter_eggs = true
+small = true                          # Always use small ASCII art
 ```
 
 ### Platform-specific config locations
@@ -165,6 +169,8 @@ All platform-specific probes fail gracefully. A missing GPU detector doesn't cra
 larpfetch                              # Default mode
 larpfetch -p NAME                      # Select profile
 larpfetch --profile NAME               # Select profile (long form)
+larpfetch --distro NAME                # LARP as a specific distro
+larpfetch --small                      # Use small ASCII art
 larpfetch --real-shit                  # Real system info only
 larpfetch --list-profiles              # List all profiles
 larpfetch --show-config                # Show current config
