@@ -8,7 +8,7 @@ import sys
 from typing import Any
 
 from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
-from larpfetch.logos import LOGOS, get_logo_width, select_logo
+from larpfetch.logos import LOGO_ART, LOGO_COLORS, get_logo_width, select_logo
 from larpfetch.models import SystemInfo
 
 # Original ANSI color values (never mutated)
@@ -59,12 +59,38 @@ def _get_colors(use_color: bool) -> dict[str, str]:
     return {k: "" for k in _COLOR_VALUES}
 
 
+def _apply_logo_colors(art: list[str], logo_colors: list[str], use_color: bool) -> list[str]:
+    """Replace $1, $2, $3... placeholders in logo art with ANSI color codes.
+
+    $N maps to logo_colors[N-1]. If color is disabled, placeholders are stripped.
+    """
+    if not use_color:
+        # Strip all $N placeholders
+        return [re.sub(r"\$\d+", "", line) for line in art]
+
+    result = []
+    for line in art:
+        styled = line
+        for i, color_code in enumerate(logo_colors):
+            placeholder = f"${i + 1}"
+            if placeholder in styled:
+                # Wrap each occurrence: color + text until next placeholder or end
+                # Simple approach: replace $N with color, add reset before next $N or at end
+                styled = styled.replace(placeholder, color_code)
+        # Add reset at end of line if any color was used
+        if styled != line:
+            styled += "\033[0m"
+        result.append(styled)
+    return result
+
+
 def _resolve_logo(
     info: SystemInfo,
     real: SystemInfo,
     real_shit: bool,
-) -> list[str]:
-    """Resolve which logo to use.
+    use_color: bool,
+) -> tuple[list[str], list[str]]:
+    """Resolve which logo to use, returning (art, colors).
 
     Priority:
     1. Profile's 'logo' field (if present and not --real-shit)
@@ -73,21 +99,23 @@ def _resolve_logo(
     """
     if real_shit:
         display_os = real.get("os", real.get("distro", "Unknown"))
-        return list(select_logo(display_os))
+        art, logo_colors = select_logo(display_os)
+        return list(art), logo_colors
 
     # Check for explicit logo override in the resolved profile
     logo_ref = info.get("logo", "")
     if logo_ref:
         # If it matches a built-in logo name, use it
-        if logo_ref in LOGOS:
-            return list(LOGOS[logo_ref])
-        # Otherwise, treat as newline-separated custom art
+        if logo_ref in LOGO_ART:
+            return list(LOGO_ART[logo_ref]), LOGO_COLORS.get(logo_ref, [])
+        # Otherwise, treat as newline-separated custom art (no colors)
         if "\n" in logo_ref:
-            return logo_ref.split("\n")
+            return logo_ref.split("\n"), []
 
     # Fall back to OS-based selection
     display_os = info.get("os", info.get("distro", "Unknown"))
-    return list(select_logo(display_os))
+    art, logo_colors = select_logo(display_os)
+    return list(art), logo_colors
 
 
 def render(
@@ -105,7 +133,8 @@ def render(
 
     colors = _get_colors(use_color)
 
-    logo = _resolve_logo(info, real, real_shit)
+    logo_raw, logo_colors = _resolve_logo(info, real, real_shit, use_color)
+    logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)
     logo_width = get_logo_width(logo)
 

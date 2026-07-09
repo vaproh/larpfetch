@@ -24,5 +24,8 @@ line-length = 99
 [tool.ruff.lint]
 select = ["E", "F", "I", "W"]
 
+[tool.ruff.lint.per-file-ignores]
+"src/larpfetch/logos.py" = ["E501"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

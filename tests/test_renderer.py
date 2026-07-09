@@ -180,3 +180,20 @@ class TestLogoOverride:
         result = render(info, real, real_shit=False, appearance={"color": False})
         assert "CUSTOM_LOGO_LINE_1" in result
         assert "CUSTOM_LOGO_LINE_2" in result
+
+    def test_logo_colors_applied_when_color_enabled(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", os="Arch Linux")
+        result = render(info, info, real_shit=False, appearance={"color": True})
+        # Arch logo has $1/$2 color codes, should have ANSI in output
+        lines = result.split("\n")
+        # First line of arch logo should have ANSI codes
+        assert "\033[" in lines[0]
+
+    def test_logo_colors_stripped_when_no_color(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", os="Arch Linux")
+        result = render(info, info, real_shit=False, appearance={"color": False})
+        # No $N placeholders should remain
+        assert "$1" not in result
+        assert "$2" not in result
