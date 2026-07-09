@@ -102,7 +102,7 @@ class TestMain:
             main(["--version"])
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "0.1.0" in captured.out
+        assert "larpfetch" in captured.out
 
     def test_list_profiles_no_config(self, capsys, monkeypatch):
         from pathlib import Path
