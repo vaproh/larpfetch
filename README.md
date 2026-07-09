@@ -16,6 +16,11 @@ Or with pipx:
 pipx install larpfetch
 ```
 
+> **Note:** If pipx installs an older version, it may have a stale cache. Fix with:
+> ```bash
+> pipx uninstall larpfetch && pipx install --index-url https://pypi.org/simple/ larpfetch
+> ```
+
 ## Usage
 
 ```bash
