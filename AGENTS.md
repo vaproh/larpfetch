@@ -119,14 +119,14 @@ No `eval`/`exec`, no arbitrary code execution from TOML, no network access, no u
 
 ## Packaging
 
-Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runtime deps: `psutil` only. Dev deps: `pytest`, `ruff`.
+Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runtime deps: `psutil` only. Dev deps: `pytest`, `ruff`. Use `uv` for dependency management. Run tasks via `just`.
 
 ## Workflow
 
 1. Read `PRD.md` and this file.
 2. Inspect existing code and tests.
 3. Work in small coherent changes.
-4. Run tests and linting after each change.
+4. Run `just check` after each change.
 5. Test the CLI manually.
 6. Do not leave placeholders, TODOs, or broken code.
 

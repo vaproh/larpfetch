@@ -7,10 +7,10 @@ A cross-platform terminal fetch utility that detects real system information and
 ## Installation
 
 ```bash
-pip install larpfetch
+uv tool install larpfetch
 ```
 
-Or with pipx (recommended):
+Or with pipx:
 
 ```bash
 pipx install larpfetch
@@ -176,17 +176,20 @@ larpfetch --help                       # Show help
 ```bash
 git clone https://github.com/vaproh/larpfetch.git
 cd larpfetch
-python -m venv .venv
-.venv/bin/pip install -e ".[dev]"
-.venv/bin/pytest
-.venv/bin/ruff check src/ tests/
+uv sync
+just test
+just lint
 ```
 
-## Testing
+Or with just:
 
 ```bash
-pytest
-pytest --cov=larpfetch
+just dev        # install in dev mode
+just test       # run tests
+just lint       # ruff check
+just fmt        # ruff format
+just check      # lint + test
+just all        # format + lint + test
 ```
 
 197 tests covering: config loading, profile resolution, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
