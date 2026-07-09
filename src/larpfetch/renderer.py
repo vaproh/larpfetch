@@ -8,7 +8,7 @@ import sys
 from typing import Any
 
 from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
-from larpfetch.logos import get_logo_width, select_logo
+from larpfetch.logos import LOGOS, get_logo_width, select_logo
 from larpfetch.models import SystemInfo
 
 # Original ANSI color values (never mutated)
@@ -59,6 +59,37 @@ def _get_colors(use_color: bool) -> dict[str, str]:
     return {k: "" for k in _COLOR_VALUES}
 
 
+def _resolve_logo(
+    info: SystemInfo,
+    real: SystemInfo,
+    real_shit: bool,
+) -> list[str]:
+    """Resolve which logo to use.
+
+    Priority:
+    1. Profile's 'logo' field (if present and not --real-shit)
+    2. Real OS-based selection (if --real-shit)
+    3. Displayed OS-based selection
+    """
+    if real_shit:
+        display_os = real.get("os", real.get("distro", "Unknown"))
+        return list(select_logo(display_os))
+
+    # Check for explicit logo override in the resolved profile
+    logo_ref = info.get("logo", "")
+    if logo_ref:
+        # If it matches a built-in logo name, use it
+        if logo_ref in LOGOS:
+            return list(LOGOS[logo_ref])
+        # Otherwise, treat as newline-separated custom art
+        if "\n" in logo_ref:
+            return logo_ref.split("\n")
+
+    # Fall back to OS-based selection
+    display_os = info.get("os", info.get("distro", "Unknown"))
+    return list(select_logo(display_os))
+
+
 def render(
     info: SystemInfo,
     real: SystemInfo,
@@ -74,13 +105,7 @@ def render(
 
     colors = _get_colors(use_color)
 
-    # Select logo based on displayed identity (or real identity in --real-shit mode)
-    if real_shit:
-        display_os = real.get("os", real.get("distro", "Unknown"))
-    else:
-        display_os = info.get("os", info.get("distro", "Unknown"))
-
-    logo = list(select_logo(display_os))
+    logo = _resolve_logo(info, real, real_shit)
     logo_height = len(logo)
     logo_width = get_logo_width(logo)
 

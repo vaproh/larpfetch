@@ -27,6 +27,9 @@ KNOWN_FIELDS = [
     "package_count",
 ]
 
+# Fields that are metadata-only and should not be displayed
+META_FIELDS = {"logo"}
+
 # Friendly display names
 FIELD_LABELS: dict[str, str] = {
     "username": "User",
@@ -91,9 +94,9 @@ class SystemInfo:
             if key in self.fields:
                 label = FIELD_LABELS.get(key, key.replace("_", " ").title())
                 items.append((label, self.fields[key]))
-        # Then, any custom fields (deterministic insertion order)
+        # Then, any custom fields (deterministic insertion order), skipping meta fields
         for key in self.fields:
-            if key not in KNOWN_FIELDS:
+            if key not in KNOWN_FIELDS and key not in META_FIELDS:
                 label = key.replace("_", " ").title()
                 items.append((label, self.fields[key]))
         return items

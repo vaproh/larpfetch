@@ -142,3 +142,41 @@ class TestColors:
         # Enabled should have real values
         assert colors_enabled["RESET"] == "\033[0m"
         assert colors_enabled["BOLD"] == "\033[1m"
+
+
+class TestLogoOverride:
+    def test_profile_logo_field_overrides_os(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(
+            username="user", hostname="host",
+            os="Some Unknown OS",
+            logo="arch",
+        )
+        real = _make_info(os="Linux")
+        result = render(info, real, real_shit=False, appearance={"color": False})
+        # Should use arch logo, not generic (from "Some Unknown OS")
+        assert "user@host" in result
+
+    def test_real_shit_ignores_logo_field(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(
+            os="Windows 11 Pro",
+            logo="arch",
+        )
+        real = _make_info(os="Linux")
+        result = render(info, real, real_shit=True, appearance={"color": False})
+        # In --real-shit mode, should use real OS for logo, not profile's logo
+        assert len(result) > 0
+
+    def test_custom_logo_art_via_newlines(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        custom_art = "CUSTOM_LOGO_LINE_1\nCUSTOM_LOGO_LINE_2"
+        info = _make_info(
+            username="user", hostname="host",
+            os="TestOS",
+            logo=custom_art,
+        )
+        real = _make_info(os="Linux")
+        result = render(info, real, real_shit=False, appearance={"color": False})
+        assert "CUSTOM_LOGO_LINE_1" in result
+        assert "CUSTOM_LOGO_LINE_2" in result

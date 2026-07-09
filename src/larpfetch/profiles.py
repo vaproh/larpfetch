@@ -14,6 +14,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "memory": "69 PiB",
         "shell": "nasa-sh",
         "de": "Mission Control Desktop",
+        "logo": "nasa",
     },
     "abomination": {
         "os": "Windows 11 Pro",
@@ -35,6 +36,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "shell": "zsh",
         "de": "KDE Plasma 6",
         "package_manager": "apt",
+        "logo": "parrot",
     },
     "macbook": {
         "os": "macOS 15.0 Sequoia",
@@ -45,6 +47,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "memory": "128 GiB",
         "shell": "zsh",
         "de": "Aqua",
+        "logo": "macos",
     },
     "server": {
         "os": "Ubuntu Server 24.04 LTS",
@@ -55,6 +58,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "memory": "2 TiB",
         "shell": "bash",
         "de": "headless",
+        "logo": "ubuntu",
     },
     "retro": {
         "os": "Windows 98 SE",
@@ -65,6 +69,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "shell": "COMMAND.COM",
         "de": "Classic Theme",
         "package_manager": "Manual",
+        "logo": "windows95",
     },
     "gamer": {
         "os": "Windows 11 Pro",
@@ -75,6 +80,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "shell": "powershell.exe",
         "de": "Desktop Window Manager",
         "package_manager": "winget",
+        "logo": "windows",
     },
     "minimal": {
         "os": "Alpine Linux",
@@ -83,6 +89,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "cpu": "Virtual CPU",
         "memory": "512 MiB",
         "shell": "ash",
+        "logo": "alpine",
     },
     "templeos": {
         "os": "TempleOS",
@@ -93,6 +100,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "memory": "1 GiB",
         "shell": "HolyC",
         "de": "Single Ring, 640x480 16 color",
+        "logo": "templeos",
     },
     "haiku": {
         "os": "Haiku",
@@ -103,6 +111,7 @@ BUILTIN_PROFILES: dict[str, dict[str, Any]] = {
         "memory": "16 GiB",
         "shell": "bash",
         "de": "Haiku Desktop",
+        "logo": "haiku",
     },
 }
 

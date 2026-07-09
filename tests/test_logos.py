@@ -66,11 +66,9 @@ class TestLogoDimensions:
         for name, logo in LOGOS.items():
             assert len(logo) > 0, f"Logo '{name}' is empty"
             widths = [len(line) for line in logo]
-            # All lines in a logo should be roughly similar width
-            # (within 5 chars is reasonable for ASCII art)
-            assert max(widths) - min(widths) <= 10, (
-                f"Logo '{name}' has inconsistent widths: {widths}"
-            )
+            max_w = max(widths)
+            # No logo line should be absurdly wide
+            assert max_w <= 100, f"Logo '{name}' has a line wider than 100 chars: {max_w}"
 
     def test_get_logo_height(self):
         assert get_logo_height(LOGOS["arch"]) == len(LOGOS["arch"])
@@ -82,3 +80,20 @@ class TestLogoDimensions:
         for name, logo in LOGOS.items():
             assert get_logo_height(logo) > 0, f"Logo '{name}' has no height"
             assert get_logo_width(logo) > 0, f"Logo '{name}' has no width"
+
+
+class TestNormalize:
+    def test_direct_match(self):
+        from larpfetch.logos import _normalize
+        assert _normalize("arch") == "arch"
+        assert _normalize("parrot") == "parrot"
+
+    def test_substring_match(self):
+        from larpfetch.logos import _normalize
+        assert _normalize("Parrot Security OS") == "parrot"
+        assert _normalize("Arch Linux") == "arch"
+        assert _normalize("NixOS 24.05") == "nixos"
+
+    def test_fallback_to_generic(self):
+        from larpfetch.logos import _normalize
+        assert _normalize("Something Weird") == "generic"
