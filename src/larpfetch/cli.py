@@ -132,6 +132,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Override a field (repeatable)",
     )
     parser.add_argument(
+        "--distro",
+        metavar="NAME",
+        help="LARP as a specific distro (e.g. gentoo, fedora, nixos)",
+    )
+    parser.add_argument(
         "--color",
         action="store_true",
         default=None,
@@ -196,6 +201,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         selected_profile = profiles[args.profile]
 
     cli_overrides = _parse_sets(args.set)
+
+    # --distro sets distro field as a CLI override
+    if args.distro:
+        cli_overrides["distro"] = args.distro
+
     appearance = get_appearance(config)
 
     # Apply CLI color override to appearance
