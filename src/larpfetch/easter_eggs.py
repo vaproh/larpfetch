@@ -32,9 +32,7 @@ def _is_implausible_memory(mem: str) -> bool:
     return False
 
 
-def _compute_authenticity(
-    real: SystemInfo, resolved: SystemInfo, real_shit: bool
-) -> int:
+def _compute_authenticity(real: SystemInfo, resolved: SystemInfo, real_shit: bool) -> int:
     """Compute an authenticity percentage (0-100)."""
     if real_shit:
         return 100
@@ -45,9 +43,7 @@ def _compute_authenticity(
     if not real_d:
         return 50
 
-    matches = sum(
-        1 for k in real_d if k in resolved_d and real_d[k] == resolved_d[k]
-    )
+    matches = sum(1 for k in real_d if k in resolved_d and real_d[k] == resolved_d[k])
     total = max(len(real_d), 1)
     pct = int((matches / total) * 100)
     # In LARP mode, authenticity should be low if user is faking a lot

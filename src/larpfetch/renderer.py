@@ -154,8 +154,7 @@ def render(
     info_lines: list[str] = []
     for label, value in display_items:
         info_lines.append(
-            f"{colors['GREEN']}{label}{colors['RESET']}: "
-            f"{colors['WHITE']}{value}{colors['RESET']}"
+            f"{colors['GREEN']}{label}{colors['RESET']}: {colors['WHITE']}{value}{colors['RESET']}"
         )
 
     # Authenticity line
@@ -185,22 +184,16 @@ def render(
 
     # Header line
     logo_line = logo[0] if logo else ""
-    output_lines.append(
-        f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{header}"
-    )
+    output_lines.append(f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{header}")
 
     # Separator line
     logo_line = logo[1] if len(logo) > 1 else ""
     dim_rst = f"{colors['DIM']}{separator}{colors['RESET']}"
-    output_lines.append(
-        f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{dim_rst}"
-    )
+    output_lines.append(f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{dim_rst}")
 
     # Info lines
     for i, info_line in enumerate(info_lines):
         logo_line = logo[i + 2] if i + 2 < len(logo) else ""
-        output_lines.append(
-            f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{info_line}"
-        )
+        output_lines.append(f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{info_line}")
 
     return "\n".join(output_lines)

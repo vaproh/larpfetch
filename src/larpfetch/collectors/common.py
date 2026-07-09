@@ -186,9 +186,7 @@ def _collect_linux() -> SystemInfo:
         info.set("shell", os.path.basename(shell))
 
     # Desktop environment
-    de = os.environ.get("XDG_CURRENT_DESKTOP", "") or os.environ.get(
-        "DESKTOP_SESSION", ""
-    )
+    de = os.environ.get("XDG_CURRENT_DESKTOP", "") or os.environ.get("DESKTOP_SESSION", "")
     if de:
         info.set("de", de)
 

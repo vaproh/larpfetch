@@ -10,9 +10,7 @@ from typing import Any
 
 # Platform default config paths
 if sys.platform == "darwin":
-    _DEFAULT_CONFIG_DIR = (
-        Path.home() / "Library" / "Application Support" / "larpfetch"
-    )
+    _DEFAULT_CONFIG_DIR = Path.home() / "Library" / "Application Support" / "larpfetch"
 elif sys.platform == "win32":
     _DEFAULT_CONFIG_DIR = Path(os.environ.get("APPDATA", "")) / "larpfetch"
     if not str(_DEFAULT_CONFIG_DIR).strip("\\"):

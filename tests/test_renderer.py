@@ -49,7 +49,9 @@ class TestRenderer:
         monkeypatch.delenv("NO_COLOR", raising=False)
         info = _make_info(username="user", hostname="host", os="Linux")
         result = render(
-            info, info, real_shit=False,
+            info,
+            info,
+            real_shit=False,
             appearance={"color": False, "show_authenticity": True, "easter_eggs": True},
         )
         assert "Authenticity" in result
@@ -58,7 +60,9 @@ class TestRenderer:
         monkeypatch.delenv("NO_COLOR", raising=False)
         info = _make_info(username="user", hostname="host", os="Linux")
         result = render(
-            info, info, real_shit=False,
+            info,
+            info,
+            real_shit=False,
             appearance={"color": False, "show_authenticity": False},
         )
         assert "Authenticity" not in result
@@ -81,7 +85,9 @@ class TestRenderer:
     def test_custom_fields_displayed(self, monkeypatch):
         monkeypatch.delenv("NO_COLOR", raising=False)
         info = _make_info(
-            username="user", hostname="host", os="Linux",
+            username="user",
+            hostname="host",
+            os="Linux",
             custom_field="custom_value",
         )
         result = render(info, info, real_shit=False, appearance={"color": False})
@@ -120,14 +126,17 @@ class TestColors:
     def test_no_color_mode(self, monkeypatch):
         monkeypatch.setenv("NO_COLOR", "1")
         from larpfetch.renderer import _should_color
+
         assert not _should_color()
 
     def test_force_color_true(self):
         from larpfetch.renderer import _should_color
+
         assert _should_color(force_color=True)
 
     def test_force_color_false(self):
         from larpfetch.renderer import _should_color
+
         assert not _should_color(force_color=False)
 
     def test_colors_not_permanently_mutated(self):
@@ -148,7 +157,8 @@ class TestLogoOverride:
     def test_profile_logo_field_overrides_os(self, monkeypatch):
         monkeypatch.delenv("NO_COLOR", raising=False)
         info = _make_info(
-            username="user", hostname="host",
+            username="user",
+            hostname="host",
             os="Some Unknown OS",
             logo="arch",
         )
@@ -172,7 +182,8 @@ class TestLogoOverride:
         monkeypatch.delenv("NO_COLOR", raising=False)
         custom_art = "CUSTOM_LOGO_LINE_1\nCUSTOM_LOGO_LINE_2"
         info = _make_info(
-            username="user", hostname="host",
+            username="user",
+            hostname="host",
             os="TestOS",
             logo=custom_art,
         )

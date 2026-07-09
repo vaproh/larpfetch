@@ -1,6 +1,5 @@
 """Tests for the CLI module."""
 
-
 import pytest
 
 from larpfetch.cli import build_parser, main
@@ -54,19 +53,27 @@ class TestBuildParser:
 
     def test_repeated_set(self):
         parser = build_parser()
-        args = parser.parse_args([
-            "--set", "os=Windows 11 Pro",
-            "--set", "kernel=6.18.7-arch1-1",
-        ])
+        args = parser.parse_args(
+            [
+                "--set",
+                "os=Windows 11 Pro",
+                "--set",
+                "kernel=6.18.7-arch1-1",
+            ]
+        )
         assert args.set == ["os=Windows 11 Pro", "kernel=6.18.7-arch1-1"]
 
     def test_combined_args(self):
         parser = build_parser()
-        args = parser.parse_args([
-            "-p", "nasa",
-            "--set", "cpu=Fast",
-            "--real-shit",
-        ])
+        args = parser.parse_args(
+            [
+                "-p",
+                "nasa",
+                "--set",
+                "cpu=Fast",
+                "--real-shit",
+            ]
+        )
         assert args.profile == "nasa"
         assert args.set == ["cpu=Fast"]
         assert args.real_shit is True
@@ -99,6 +106,7 @@ class TestMain:
 
     def test_list_profiles_no_config(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -136,6 +144,7 @@ my_field = "value"
 
     def test_show_config_no_config(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -162,6 +171,7 @@ show_authenticity = true
 
     def test_missing_profile_exits_with_error(self, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -172,6 +182,7 @@ show_authenticity = true
 
     def test_default_run_produces_output(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -182,6 +193,7 @@ show_authenticity = true
 
     def test_real_shit_produces_output(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -192,6 +204,7 @@ show_authenticity = true
 
     def test_real_shit_ignores_nonexistent_profile(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -203,6 +216,7 @@ show_authenticity = true
 
     def test_cli_override_in_output(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -213,20 +227,26 @@ show_authenticity = true
 
     def test_multiple_cli_overrides(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
         )
-        main([
-            "--set", "os=Windows 11 Pro",
-            "--set", "kernel=6.18.7-arch1-1",
-        ])
+        main(
+            [
+                "--set",
+                "os=Windows 11 Pro",
+                "--set",
+                "kernel=6.18.7-arch1-1",
+            ]
+        )
         captured = capsys.readouterr()
         assert "Windows 11 Pro" in captured.out
         assert "6.18.7-arch1-1" in captured.out
 
     def test_set_empty_key_exits_with_error(self, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -237,6 +257,7 @@ show_authenticity = true
 
     def test_set_no_equals_exits_with_error(self, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -247,18 +268,27 @@ show_authenticity = true
 
     def test_impossible_combination_accepted(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
         )
-        main([
-            "--set", "os=Windows 11 Pro",
-            "--set", "kernel=6.18.7-arch1-1",
-            "--set", "cpu=Apple M7 Ultra",
-            "--set", "gpu=NVIDIA RTX 9090 Ti",
-            "--set", "memory=69 PiB",
-            "--set", "shell=HolyC",
-        ])
+        main(
+            [
+                "--set",
+                "os=Windows 11 Pro",
+                "--set",
+                "kernel=6.18.7-arch1-1",
+                "--set",
+                "cpu=Apple M7 Ultra",
+                "--set",
+                "gpu=NVIDIA RTX 9090 Ti",
+                "--set",
+                "memory=69 PiB",
+                "--set",
+                "shell=HolyC",
+            ]
+        )
         captured = capsys.readouterr()
         assert "Windows 11 Pro" in captured.out
         assert "Apple M7 Ultra" in captured.out
@@ -271,6 +301,7 @@ show_authenticity = true
 
     def test_custom_field_via_cli(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -281,6 +312,7 @@ show_authenticity = true
 
     def test_no_color_flag(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),
@@ -291,6 +323,7 @@ show_authenticity = true
 
     def test_color_flag_forced(self, capsys, monkeypatch):
         from pathlib import Path
+
         monkeypatch.setattr(
             "larpfetch.config.DEFAULT_CONFIG_PATH",
             Path("/nonexistent/config.toml"),

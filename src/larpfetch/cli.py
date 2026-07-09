@@ -143,9 +143,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Disable color output",
     )
-    parser.add_argument(
-        "--version", action="version", version=f"larpfetch {__version__}"
-    )
+    parser.add_argument("--version", action="version", version=f"larpfetch {__version__}")
     return parser
 
 
@@ -191,8 +189,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         if args.profile not in profiles:
             avail = ", ".join(sorted(profiles.keys()))
             print(
-                f"Error: profile '{args.profile}' not found."
-                f" Available: {avail}",
+                f"Error: profile '{args.profile}' not found. Available: {avail}",
                 file=sys.stderr,
             )
             sys.exit(1)

@@ -22,24 +22,24 @@ class TestFmtBytes:
         assert _fmt_bytes(1024 * 1024) == "1.0 MiB"
 
     def test_gib(self):
-        assert _fmt_bytes(1024 ** 3) == "1.0 GiB"
+        assert _fmt_bytes(1024**3) == "1.0 GiB"
 
     def test_tib(self):
-        assert _fmt_bytes(1024 ** 4) == "1.0 TiB"
+        assert _fmt_bytes(1024**4) == "1.0 TiB"
 
     def test_zero(self):
         assert _fmt_bytes(0) == "0.0 B"
 
     def test_rounding_not_truncation(self):
         # 1.5 GiB should show as 1.5, not 1.0
-        n = 1.5 * 1024 ** 3
+        n = 1.5 * 1024**3
         assert _fmt_bytes(n) == "1.5 GiB"
 
     def test_pib(self):
-        assert _fmt_bytes(1024 ** 5) == "1.0 PiB"
+        assert _fmt_bytes(1024**5) == "1.0 PiB"
 
     def test_eib(self):
-        assert _fmt_bytes(1024 ** 6) == "1.0 EiB"
+        assert _fmt_bytes(1024**6) == "1.0 EiB"
 
     def test_partial_values(self):
         assert _fmt_bytes(1536) == "1.5 KiB"
@@ -121,6 +121,7 @@ class TestCollectLinux:
                     ['PRETTY_NAME="Arch Linux"\n', 'NAME="Arch Linux"\n']
                 )
                 from larpfetch.collectors.common import _collect_linux
+
                 info = _collect_linux()
                 assert info.get("distro") == "Arch Linux"
 
@@ -134,6 +135,7 @@ class TestCollectLinux:
         mock_result.stdout = lspci_output
         with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
             from larpfetch.collectors.common import _collect_linux
+
             info = _collect_linux()
             # Should find the first VGA/3D device
             assert info.get("gpu") != ""
@@ -149,6 +151,7 @@ class TestCollectLinux:
         mock_result.stdout = lspci_output
         with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
             from larpfetch.collectors.common import _collect_linux
+
             info = _collect_linux()
             assert "NVIDIA" in info.get("gpu")
             assert "RTX 3090" in info.get("gpu")
@@ -157,12 +160,14 @@ class TestCollectLinux:
     def test_shell_from_env(self, monkeypatch):
         monkeypatch.setenv("SHELL", "/bin/zsh")
         from larpfetch.collectors.common import _collect_linux
+
         info = _collect_linux()
         assert info.get("shell") == "zsh"
 
     def test_de_from_env(self, monkeypatch):
         monkeypatch.setenv("XDG_CURRENT_DESKTOP", "Hyprland")
         from larpfetch.collectors.common import _collect_linux
+
         info = _collect_linux()
         assert info.get("de") == "Hyprland"
 
@@ -172,6 +177,7 @@ class TestCollectWindows:
         monkeypatch.setenv("COMSPEC", r"C:\Windows\System32\cmd.exe")
         with patch("larpfetch.collectors.common.platform.system", return_value="Windows"):
             from larpfetch.collectors.common import _collect_windows
+
             info = _collect_windows()
             assert info.get("shell") == "cmd.exe"
 
@@ -179,6 +185,7 @@ class TestCollectWindows:
         monkeypatch.delenv("COMSPEC", raising=False)
         with patch("larpfetch.collectors.common.platform.system", return_value="Windows"):
             from larpfetch.collectors.common import _collect_windows
+
             info = _collect_windows()
             assert info.get("shell") == "cmd.exe"
 

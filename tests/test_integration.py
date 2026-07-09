@@ -97,11 +97,16 @@ class TestIntegrationWithConfig:
         assert "GNOME 83" in captured.out
 
     def test_cli_overrides_profile(self, capsys, sample_config):
-        main([
-            "--config", str(sample_config),
-            "-p", "nasa",
-            "--set", "os=Hacked Linux",
-        ])
+        main(
+            [
+                "--config",
+                str(sample_config),
+                "-p",
+                "nasa",
+                "--set",
+                "os=Hacked Linux",
+            ]
+        )
         captured = capsys.readouterr()
         assert "Hacked Linux" in captured.out
         assert "NASA Linux" not in captured.out
@@ -121,11 +126,15 @@ class TestIntegrationWithConfig:
         assert "Quantum Potato 9000" not in captured.out
 
     def test_real_shit_ignores_cli_overrides(self, capsys, sample_config):
-        main([
-            "--config", str(sample_config),
-            "--real-shit",
-            "--set", "os=Fake OS",
-        ])
+        main(
+            [
+                "--config",
+                str(sample_config),
+                "--real-shit",
+                "--set",
+                "os=Fake OS",
+            ]
+        )
         captured = capsys.readouterr()
         assert "Fake OS" not in captured.out
 
@@ -155,11 +164,16 @@ class TestIntegrationAppearance:
 
 class TestIntegrationEdgeCases:
     def test_repeated_set(self, capsys, no_config):
-        main([
-            "--set", "os=Windows",
-            "--set", "kernel=Arch",
-            "--set", "cpu=Apple M7",
-        ])
+        main(
+            [
+                "--set",
+                "os=Windows",
+                "--set",
+                "kernel=Arch",
+                "--set",
+                "cpu=Apple M7",
+            ]
+        )
         captured = capsys.readouterr()
         assert "Windows" in captured.out
         assert "Arch" in captured.out

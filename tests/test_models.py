@@ -40,11 +40,15 @@ class TestSystemInfo:
         assert info.get("os") == "Linux"
 
     def test_display_items_known_fields_order(self):
-        info = SystemInfo(fields=OrderedDict([
-            ("memory", "16 GiB"),
-            ("os", "Linux"),
-            ("cpu", "Intel"),
-        ]))
+        info = SystemInfo(
+            fields=OrderedDict(
+                [
+                    ("memory", "16 GiB"),
+                    ("os", "Linux"),
+                    ("cpu", "Intel"),
+                ]
+            )
+        )
         items = info.display_items()
         labels = [label for label, _ in items]
         assert "OS" in labels
@@ -57,10 +61,14 @@ class TestSystemInfo:
         assert os_idx < cpu_idx < mem_idx
 
     def test_display_items_custom_fields_after_known(self):
-        info = SystemInfo(fields=OrderedDict([
-            ("custom_field", "value"),
-            ("os", "Linux"),
-        ]))
+        info = SystemInfo(
+            fields=OrderedDict(
+                [
+                    ("custom_field", "value"),
+                    ("os", "Linux"),
+                ]
+            )
+        )
         items = info.display_items()
         labels = [label for label, _ in items]
         os_idx = labels.index("OS")

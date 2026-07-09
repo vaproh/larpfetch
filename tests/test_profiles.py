@@ -16,9 +16,7 @@ class TestBuiltinProfiles:
         profiles = get_builtin_profiles()
         for name, profile in profiles.items():
             for k, v in profile.items():
-                assert isinstance(v, str), (
-                    f"Profile '{name}' field '{k}' is not a string"
-                )
+                assert isinstance(v, str), f"Profile '{name}' field '{k}' is not a string"
 
     def test_profile_names_sorted(self):
         names = get_builtin_profile_names()
@@ -90,6 +88,7 @@ cpu = "Custom CPU"
             Path("/nonexistent/config.toml"),
         )
         from larpfetch.config import load_config
+
         config = load_config()
         profiles = _get_all_profiles(config)
         assert len(profiles) >= 10  # at least the built-in ones
