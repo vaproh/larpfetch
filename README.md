@@ -194,6 +194,15 @@ just all        # format + lint + test
 
 197 tests covering: config loading, profile resolution, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
+## Roadmap
+
+- **v1.1**: `--logo`, `--list-logos`, pipe mode
+- **v1.2**: JSON output, package count detection, GPU/disk details
+- **v1.3**: More profiles, compact mode
+- **v2.0**: Plugins, custom themes, export profiles
+
+See [ROADMAP.md](ROADMAP.md) for full details.
+
 ## License
 
 MIT — see [LICENSE](LICENSE)
