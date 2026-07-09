@@ -112,8 +112,8 @@ def _resolve_logo(
         if "\n" in logo_ref:
             return logo_ref.split("\n"), []
 
-    # Fall back to OS-based selection
-    display_os = info.get("os", info.get("distro", "Unknown"))
+    # Fall back to OS-based selection (prefer distro if set to a non-real value)
+    display_os = info.get("distro") or info.get("os", "Unknown")
     art, logo_colors = select_logo(display_os)
     return list(art), logo_colors
 
