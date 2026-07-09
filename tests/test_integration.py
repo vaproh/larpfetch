@@ -110,7 +110,6 @@ class TestIntegrationWithConfig:
         main(["--config", str(sample_config), "--real-shit"])
         captured = capsys.readouterr()
         # Check that default-profile-only values are absent
-        # (hostname and kernel are fake in the config; real values differ)
         assert "btw-i-use-arch" not in captured.out
         assert "6.99.0-larp" not in captured.out
         assert "AMD Ryzen 9 9950X3D" not in captured.out
@@ -130,6 +129,12 @@ class TestIntegrationWithConfig:
         captured = capsys.readouterr()
         assert "Fake OS" not in captured.out
 
+    def test_real_shit_ignores_nonexistent_profile(self, capsys, sample_config):
+        # Should not error even with invalid profile
+        main(["--config", str(sample_config), "--real-shit", "--profile", "nope"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0
+
 
 class TestIntegrationAppearance:
     def test_authenticity_shown(self, capsys, sample_config):
@@ -141,6 +146,11 @@ class TestIntegrationAppearance:
         main(["--config", str(sample_config), "--real-shit"])
         captured = capsys.readouterr()
         assert "100%" in captured.out
+
+    def test_disappointment_in_real_shit(self, capsys, sample_config):
+        main(["--config", str(sample_config), "--real-shit"])
+        captured = capsys.readouterr()
+        assert "Disappointment" in captured.out
 
 
 class TestIntegrationEdgeCases:
@@ -161,3 +171,16 @@ class TestIntegrationEdgeCases:
         captured = capsys.readouterr()
         # Real OS should still be shown
         assert len(captured.out) > 0
+
+
+class TestIntegrationColor:
+    def test_no_color_flag(self, capsys, no_config):
+        main(["--no-color"])
+        captured = capsys.readouterr()
+        assert "\033[" not in captured.out
+
+    def test_color_flag(self, capsys, monkeypatch, no_config):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        main(["--color"])
+        captured = capsys.readouterr()
+        assert "\033[" in captured.out

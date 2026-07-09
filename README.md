@@ -21,33 +21,54 @@ A cross-platform fetch-style terminal system-information utility with one defini
 ## Installation
 
 ```bash
-pipx install .
+pipx install larpfetch
 ```
 
 Or with pip:
 
 ```bash
-pip install .
+pip install larpfetch
 ```
 
-## Usage
+## Quick Start
 
 ```bash
-larpfetch                          # Use default profile
-larpfetch -p nasa                  # Select a named profile
-larpfetch --real-shit              # Show real system info only
-larpfetch --list-profiles          # List available profiles
-larpfetch --show-config            # Show current configuration
-larpfetch --config /path/to/config.toml
-larpfetch --set cpu="Quantum Potato 9000"
-larpfetch --set os="Windows 11 Pro" --set kernel="6.18.7-arch1-1"
-larpfetch --version
-larpfetch --help
+larpfetch                          # Real system info with arch logo
+larpfetch -p nasa                  # LARP as NASA Linux
+larpfetch --real-shit              # Real system info only
+larpfetch --list-profiles          # See all available profiles
 ```
 
-## Profiles
+## Built-in Profiles
 
-Create a `~/.config/larpfetch/config.toml` (or `$XDG_CONFIG_HOME/larpfetch/config.toml`):
+larpfetch ships with these profiles out of the box:
+
+| Profile | Description |
+|---------|-------------|
+| `nasa` | Quantum Potato 9000, 69 PiB memory |
+| `abomination` | Windows kernel + Apple CPU + HolyC shell |
+| `hacker` | Parrot OS with RTX 4090 |
+| `macbook` | macOS Sequoia with M4 Max |
+| `server` | Ubuntu Server, EPYC 9654, 2 TiB RAM |
+| `retro` | Windows 98 SE with Voodoo3 |
+| `gamer` | Ryzen 9 9950X3D + RTX 5090 |
+| `minimal` | Alpine Linux, 512 MiB |
+| `templeos` | HolyC on TempleOS |
+| `haiku` | Haiku R1/beta4 |
+
+Use them with `-p`:
+
+```bash
+larpfetch -p nasa
+larpfetch -p abomination
+larpfetch -p retro
+```
+
+User-defined profiles in your config file override built-in ones with the same name.
+
+## Configuration
+
+Default config location: `~/.config/larpfetch/config.toml`
 
 ```toml
 [default]
@@ -60,21 +81,9 @@ gpu = "NVIDIA RTX 5090"
 memory = "128 GiB"
 shell = "zsh"
 
-[profiles.nasa]
-os = "NASA Linux"
-hostname = "mainframe-01"
-cpu = "Quantum Potato 9000"
-gpu = "Classified"
-memory = "69 PiB"
-
-[profiles.abomination]
-os = "Windows 11 Pro"
-kernel = "6.18.7-arch1-1"
-cpu = "Apple M7 Ultra"
-gpu = "NVIDIA RTX 9090 Ti"
-shell = "HolyC"
-de = "GNOME 83"
-package_manager = "apt btw"
+[profiles.my-custom]
+os = "Custom OS"
+cpu = "Custom CPU"
 
 [appearance]
 color = true
@@ -82,27 +91,42 @@ show_authenticity = true
 easter_eggs = true
 ```
 
-## Configuration
-
-**Default config locations:**
+**Platform-specific config locations:**
 
 - Linux: `$XDG_CONFIG_HOME/larpfetch/config.toml` or `~/.config/larpfetch/config.toml`
 - macOS: `~/Library/Application Support/larpfetch/config.toml`
 - Windows: `%APPDATA%\larpfetch\config.toml`
 
-**Precedence (normal mode):**
+## Precedence
+
+Normal mode:
 
 ```
-CLI overrides > selected custom profile > default profile > real detected values
+CLI overrides > selected profile > default profile > real detected values
 ```
 
-**Reality mode (`--real-shit`):**
+Reality mode:
 
 ```
-Real detected values only
+--real-shit > everything (real values only)
 ```
 
-The user's delusion is authoritative. Impossible combinations are accepted. Windows 11 with an Arch kernel and Apple M7 Ultra CPU? Valid. You do you.
+## CLI Reference
+
+```bash
+larpfetch                              # Default mode
+larpfetch -p NAME                      # Select profile
+larpfetch --profile NAME               # Select profile (long form)
+larpfetch --real-shit                  # Real system info only
+larpfetch --list-profiles              # List all profiles
+larpfetch --show-config                # Show current config
+larpfetch --config /path/to/config.toml  # Custom config path
+larpfetch --set key=value              # Override a field (repeatable)
+larpfetch --color                      # Force color output
+larpfetch --no-color                   # Disable color output
+larpfetch --version                    # Show version
+larpfetch --help                       # Show help
+```
 
 ## CLI Overrides
 
@@ -125,24 +149,58 @@ larpfetch --real-shit
 
 This ignores the default profile, selected profile, and CLI `--set` overrides. It does not modify your configuration.
 
+## Color Control
+
+```bash
+larpfetch --color       # Force color even when piped
+larpfetch --no-color    # Disable all ANSI codes
+NO_COLOR=1 larpfetch    # Standard env var (always wins)
+```
+
+`NO_COLOR` takes precedence over `--color`.
+
+## Easter Eggs
+
+The output may include occasional humorous lines:
+
+- `Authenticity: N%` - how much of your output is real
+- `Source: trust me bro` - triggered by implausible memory values
+- `Reality Leakage: 100.00%` - absurdly high package counts
+- `Disappointment: immeasurable` - shown in `--real-shit` mode
+- `The allegations were true.` - 1% chance based on username
+
+Easter eggs are:
+
+- Deterministic (same input = same output)
+- Disableable via `[appearance] easter_eggs = false` or `LARPFETCH_NO_EASTER_EGGS=1`
+- Not offensive
+
 ## Cross-Platform Support
 
 - **Linux**: Reads `/etc/os-release`, environment variables, `lspci` for GPU
 - **macOS**: Uses `platform.mac_ver()`, `system_profiler` for GPU
-- **Windows**: Uses `platform` APIs, WMIC for GPU
+- **Windows**: Uses `platform` APIs, WMIC for GPU, `COMSPEC` for shell
 
 All platform-specific probes fail gracefully. A missing GPU detector doesn't crash the app.
 
-## Easter Eggs
+## The Sacred Rule
 
-The output may include occasional humorous lines. Easter eggs are:
+**The user's delusion is authoritative.**
 
-- Deterministic (same input = same output)
-- Disableable via `[appearance] easter_eggs = false` or `NO_COLOR`
-- Not offensive
-- Not random (unless testable)
+This is valid:
 
-Some are triggered by specific profile values. Discover them yourself.
+```
+OS: Windows 11 Pro
+Kernel: 6.18.7-arch1-1
+CPU: Apple M7 Ultra
+GPU: NVIDIA RTX 9090 Ti
+Memory: 69 PiB
+Shell: HolyC
+DE: GNOME 83
+Package Manager: apt btw
+```
+
+Impossible combinations are accepted. Profiles are display identities, not hardware simulations.
 
 ## Development
 
@@ -168,17 +226,18 @@ Tests cover:
 - Profile resolution and precedence
 - `--real-shit` invariant (ignores all fake inputs)
 - CLI argument parsing and behavior
+- Built-in profiles
 - Logo selection
 - Renderer output
-- Easter egg determinism
+- Easter egg determinism and env var disabling
 - Collector failure degradation
 - ANSI-safe alignment
-- `NO_COLOR` compliance
+- `NO_COLOR` and `--color`/`--no-color` compliance
 
 ## Limitations
 
 - GPU detection is best-effort and platform-dependent
-- Package counting is not implemented in v1 (no safe universal method)
+- Package counting is not implemented in v1
 - Battery detection requires `psutil` sensor support
 - No network calls (by design)
 - No hardware benchmarking

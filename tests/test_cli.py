@@ -71,6 +71,16 @@ class TestBuildParser:
         assert args.set == ["cpu=Fast"]
         assert args.real_shit is True
 
+    def test_color_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--color"])
+        assert args.color is True
+
+    def test_no_color_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--no-color"])
+        assert args.no_color is True
+
 
 class TestMain:
     def test_help_exits_cleanly(self, capsys):
@@ -95,7 +105,9 @@ class TestMain:
         )
         main(["--list-profiles"])
         captured = capsys.readouterr()
-        assert "No profiles" in captured.out
+        # Built-in profiles should be listed even without config
+        assert "nasa" in captured.out
+        assert "abomination" in captured.out
 
     def test_list_profiles_with_config(self, capsys, tmp_path):
         config_file = tmp_path / "config.toml"
@@ -111,6 +123,17 @@ os = "Test OS"
         assert "nasa" in captured.out
         assert "test" in captured.out
 
+    def test_list_profiles_empty_os_fallback(self, capsys, tmp_path):
+        config_file = tmp_path / "config.toml"
+        config_file.write_text("""
+[profiles.custom]
+my_field = "value"
+""")
+        main(["--config", str(config_file), "--list-profiles"])
+        captured = capsys.readouterr()
+        assert "custom" in captured.out
+        assert "Custom identity" in captured.out
+
     def test_show_config_no_config(self, capsys, monkeypatch):
         from pathlib import Path
         monkeypatch.setattr(
@@ -120,6 +143,22 @@ os = "Test OS"
         main(["--show-config"])
         captured = capsys.readouterr()
         assert "Default profile:" in captured.out
+
+    def test_show_config_with_config(self, capsys, tmp_path):
+        config_file = tmp_path / "config.toml"
+        config_file.write_text("""
+[default]
+os = "Arch Linux"
+
+[appearance]
+color = true
+show_authenticity = true
+""")
+        main(["--config", str(config_file), "--show-config"])
+        captured = capsys.readouterr()
+        assert "os = Arch Linux" in captured.out
+        assert "color = true" in captured.out
+        assert "show_authenticity = true" in captured.out
 
     def test_missing_profile_exits_with_error(self, monkeypatch):
         from pathlib import Path
@@ -148,6 +187,17 @@ os = "Test OS"
             Path("/nonexistent/config.toml"),
         )
         main(["--real-shit"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0
+
+    def test_real_shit_ignores_nonexistent_profile(self, capsys, monkeypatch):
+        from pathlib import Path
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        # Should not error even though profile doesn't exist
+        main(["--real-shit", "--profile", "nonexistent"])
         captured = capsys.readouterr()
         assert len(captured.out) > 0
 
@@ -228,3 +278,25 @@ os = "Test OS"
         main(["--set", "my_custom_field=custom_value"])
         captured = capsys.readouterr()
         assert "custom_value" in captured.out
+
+    def test_no_color_flag(self, capsys, monkeypatch):
+        from pathlib import Path
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--no-color"])
+        captured = capsys.readouterr()
+        assert "\033[" not in captured.out
+
+    def test_color_flag_forced(self, capsys, monkeypatch):
+        from pathlib import Path
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        # Even in non-tty, --color should add ANSI codes
+        main(["--color"])
+        captured = capsys.readouterr()
+        assert "\033[" in captured.out

@@ -6,6 +6,7 @@ import getpass
 import os
 import platform
 import socket
+import subprocess
 import time
 from collections import OrderedDict
 
@@ -17,13 +18,13 @@ except ImportError:
 from larpfetch.models import SystemInfo
 
 
-def _fmt_bytes(n: int) -> str:
+def _fmt_bytes(n: float) -> str:
     """Format bytes to human-readable string."""
     for unit in ("B", "KiB", "MiB", "GiB", "TiB", "PiB"):
         if abs(n) < 1024:
             return f"{n:.1f} {unit}"
-        n = int(n / 1024)
-    return f"{n} EiB"
+        n /= 1024
+    return f"{n:.1f} EiB"
 
 
 def _fmt_uptime(seconds: float) -> str:
@@ -117,8 +118,6 @@ def _detect_cpu() -> str:
 
     # macOS: sysctl
     try:
-        import subprocess
-
         result = subprocess.run(
             ["sysctl", "-n", "machdep.cpu.brand_string"],
             capture_output=True,
@@ -195,8 +194,6 @@ def _collect_linux() -> SystemInfo:
 
     # GPU via lspci (best-effort)
     try:
-        import subprocess
-
         result = subprocess.run(
             ["lspci"],
             capture_output=True,
@@ -208,9 +205,9 @@ def _collect_linux() -> SystemInfo:
                 lower = line.lower()
                 if "vga" in lower or "3d" in lower or "display" in lower:
                     # Format: "XX:XX.X Class: vendor device"
-                    parts = line.split(": ", 2)
-                    if len(parts) >= 3:
-                        gpu_desc = parts[2]
+                    parts = line.split(": ", 1)
+                    if len(parts) >= 2:
+                        gpu_desc = parts[1]
                         # Trim the trailing (rev xx) if present
                         if " (" in gpu_desc:
                             gpu_desc = gpu_desc[: gpu_desc.rfind(" (")]
@@ -251,8 +248,6 @@ def _collect_macos() -> SystemInfo:
 
     # GPU via system_profiler (best-effort)
     try:
-        import subprocess
-
         result = subprocess.run(
             ["system_profiler", "SPDisplaysDataType"],
             capture_output=True,
@@ -289,16 +284,20 @@ def _collect_windows() -> SystemInfo:
     except Exception:
         pass
 
-    # Shell
-    info.set("shell", "powershell.exe")
+    # Shell - detect from COMSPEC, fallback to cmd.exe
+    comspec = os.environ.get("COMSPEC", "")
+    if comspec:
+        # Handle both Windows (\) and Unix (/) path separators
+        shell_name = comspec.replace("\\", "/").split("/")[-1]
+        info.set("shell", shell_name)
+    else:
+        info.set("shell", "cmd.exe")
 
     # Desktop environment
     info.set("de", "Desktop Window Manager")
 
     # GPU via WMIC (best-effort)
     try:
-        import subprocess
-
         result = subprocess.run(
             ["wmic", "path", "win32_videocontroller", "get", "name"],
             capture_output=True,

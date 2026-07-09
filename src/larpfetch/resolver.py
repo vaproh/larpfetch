@@ -21,7 +21,7 @@ def resolve(
         real values only
     """
     if real_shit:
-        return real
+        return SystemInfo(fields=real.to_dict())
 
     # Start from a copy of real values
     resolved = SystemInfo(fields=real.to_dict())
