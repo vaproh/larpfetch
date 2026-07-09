@@ -58,237 +58,76 @@ This invariant requires explicit automated tests.
 
 ## Data model
 
-Use a normalized representation for system/display information. Known fields may include:
+Use a normalized representation for system/display information. Known fields:
 
-- username
-- hostname
-- os
-- distro
-- os_version
-- kernel
-- architecture
-- uptime
-- shell
-- cpu
-- gpu
-- memory
-- disk
-- battery
-- de
-- package_manager
-- package_count
+- username, hostname, os, distro, os_version, kernel, architecture
+- uptime, shell, cpu, gpu, memory, disk, battery
+- de, package_manager, package_count
 
 Support arbitrary additional string fields from profiles and `--set`.
 
-Known fields should have stable display ordering. Custom fields should follow deterministically.
+Known fields have stable display ordering. Custom fields follow deterministically.
 
 ## Resolution algorithm
 
-Normal mode:
+Normal mode: `CLI overrides > selected custom profile > default profile > real values`
 
-```text
-real detected values
-    ← overridden by default profile
-    ← overridden by selected custom profile
-    ← overridden by CLI --set values
-```
+Reality mode: `--real-shit > everything else`
 
-Equivalent precedence:
-
-```text
-CLI overrides > selected custom profile > default profile > real values
-```
-
-Reality mode:
-
-```text
---real-shit > everything else
-```
-
-Do not accidentally implement custom profiles as total replacements. Missing fields should inherit from the default profile, then real values.
+Do not accidentally implement custom profiles as total replacements. Missing fields inherit from the default profile, then real values.
 
 ## Configuration
 
-Use TOML and `tomllib`.
+Use TOML and `tomllib`. Expected sections: `[default]`, `[profiles.NAME]`, `[appearance]`.
 
-Expected sections:
-
-```toml
-[default]
-
-[profiles.NAME]
-
-[appearance]
-```
-
-Requirements:
-
-- Helpful errors for invalid TOML.
-- Helpful error when requested profile does not exist.
-- Unknown profile fields are allowed.
-- Values intended for display should be normalized to strings.
-- Never execute values from config.
-- Respect explicit `--config PATH`.
+Profiles can include a `logo` field to reference a built-in logo by name or provide inline custom ASCII art.
 
 ## CLI
 
-Required surface:
-
-```text
-larpfetch
-larpfetch -p NAME
-larpfetch --profile NAME
-larpfetch --real-shit
-larpfetch --list-profiles
-larpfetch --show-config
-larpfetch --config PATH
-larpfetch --set key=value
-larpfetch --version
-larpfetch --help
-```
+Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--version`, `--help`.
 
 `--set` must be repeatable.
 
-Prefer `argparse` unless another dependency provides clear value. Avoid dependency inflation for cosmetic convenience.
+## Cross-platform
 
-## Cross-platform behavior
+Support Linux, Windows, and macOS. Collectors: common (username, hostname, arch, uptime, memory, disk, battery), Linux (os-release, kernel, shell, DE, GPU), Windows (edition/version, kernel, shell, GPU), macOS (product version, Darwin, shell, GPU).
 
-Support Linux, Windows, and macOS.
-
-Collectors:
-
-- Common collector: username, hostname, architecture, uptime, memory, disk, battery where portable.
-- Linux collector: distro from `/etc/os-release`, kernel, shell, DE, GPU best effort.
-- Windows collector: Windows edition/version/build, kernel/version, shell, GPU best effort.
-- macOS collector: macOS product version, Darwin kernel, shell, GPU best effort.
-
-Rules:
-
-- Avoid requiring root/admin.
-- Use subprocess argument arrays.
-- Use timeouts.
-- Never use `shell=True` unless absolutely necessary and documented.
-- Catch missing-command and timeout errors.
-- Do not let optional probes crash startup.
+Rules: no root required, argument arrays for subprocess, timeouts, never `shell=True`, catch failures gracefully.
 
 ## Rendering
 
 - Pair ASCII logo and aligned key/value rows.
-- Select logo from displayed identity.
-- In `--real-shit`, select from real identity.
-- Respect `NO_COLOR`.
-- Avoid broken alignment caused by ANSI codes.
-- Handle Unicode carefully.
-- Unknown distro/OS gets generic logo.
-- Keep original ASCII artwork in-repo. Do not copy copyrighted ASCII art blindly from third-party projects.
+- 533 logos from fastfetch (MIT) with ANSI color support ($1/$2/$3 placeholders).
+- Logo selection follows displayed identity (or real identity in `--real-shit`).
+- Profiles can override logos by name or provide custom art.
+- Respect `NO_COLOR`. Avoid broken alignment from ANSI codes.
+- Keep original ASCII artwork in-repo.
 
 ## Humor
 
-The humor should be dry and sparse.
+Dry and sparse. Easter eggs must be deterministic under test and disableable.
 
-Good:
+## Testing
 
-```text
-Authenticity: 3%
-Source: trust me bro
-Reality Leakage: 100.00%
-```
-
-Bad:
-
-- A joke on every line.
-- Random meme spam that obscures system information.
-- Offensive jokes.
-- Humor that makes tests flaky.
-- Pretending fake values are security facts.
-
-Easter eggs must be deterministic under test and disableable.
-
-## Testing requirements
-
-At minimum, test:
-
-- no config
-- default profile
-- selected custom profile
-- custom profile inheritance
-- CLI overrides
-- arbitrary unknown fields
-- impossible field combinations accepted
-- missing profile error
-- malformed TOML error
-- `--real-shit` ignores default profile
-- `--real-shit` ignores selected profile
-- `--real-shit` ignores CLI fake overrides
-- collector failure degradation
-- logo selection by displayed identity
-- real logo selection in reality mode
-- ANSI-safe alignment
-- `NO_COLOR`
-- CLI help/version
-- installable console entry point where practical
+At minimum: config loading, profile resolution, `--real-shit` invariant (ignores all fake inputs), CLI parsing, logo selection, ANSI alignment, `NO_COLOR`, collector degradation, easter egg determinism, installable entry point.
 
 Mock platform-specific system calls in unit tests.
 
 ## Security
 
-- No `eval` or `exec`.
-- No arbitrary code execution from TOML.
-- No network access.
-- No unsafe shell interpolation.
-- No secrets collection.
-- Do not expose environment variables beyond explicitly needed values such as shell, config paths, desktop session, and color conventions.
-- Do not persist real system information unless a future feature explicitly requires it and documents it.
+No `eval`/`exec`, no arbitrary code execution from TOML, no network access, no unsafe shell interpolation, no secrets collection.
 
 ## Packaging
 
-Use:
+Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runtime deps: `psutil` only. Dev deps: `pytest`, `ruff`.
 
-- Python 3.11+
-- `pyproject.toml`
-- `src/` layout
-- console script `larpfetch`
-- `psutil`
-- `tomllib`
+## Workflow
 
-Recommended dev tooling:
-
-- pytest
-- pytest-cov
-- ruff
-
-Keep runtime dependencies minimal.
-
-## Workflow for coding agents
-
-Before editing:
-
-1. Read `PRD.md`.
-2. Read this file.
-3. Read `IMPLEMENTATION.md`.
-4. Inspect existing code and tests.
-5. State a brief implementation plan internally, then execute.
-
-During implementation:
-
-1. Work in small coherent changes.
-2. Run focused tests after each subsystem.
-3. Run the full suite before completion.
-4. Run linting.
+1. Read `PRD.md` and this file.
+2. Inspect existing code and tests.
+3. Work in small coherent changes.
+4. Run tests and linting after each change.
 5. Test the CLI manually.
-6. Verify packaging metadata.
-7. Do not leave placeholders, TODO implementations, fake test passes, or commented-out broken code.
+6. Do not leave placeholders, TODOs, or broken code.
 
-Before declaring completion:
-
-- Ensure acceptance criteria in `PRD.md` are met.
-- Ensure `--real-shit` invariant is covered by tests.
-- Ensure the project installs locally.
-- Ensure README commands match actual behavior.
-- Ensure no generated artifacts or secrets are accidentally committed.
-
-## Final warning
-
-Do not overengineer this.
-
-It is a fetch tool that lies.
+Do not overengineer this. It is a fetch tool that lies.
