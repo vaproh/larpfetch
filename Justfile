@@ -4,7 +4,7 @@ default: check
 
 # Install dev dependencies
 dev:
-	uv sync
+	uv sync --extra dev
 
 # Run tests
 test:
