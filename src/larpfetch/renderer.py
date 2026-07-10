@@ -62,23 +62,20 @@ def _get_colors(use_color: bool) -> dict[str, str]:
 def _apply_logo_colors(art: list[str], logo_colors: list[str], use_color: bool) -> list[str]:
     """Replace $1, $2, $3... placeholders in logo art with ANSI color codes.
 
-    $N maps to logo_colors[N-1]. If color is disabled, placeholders are stripped.
+    $N maps to logo_colors[N-1]. The first color is the base for every line.
+    If color is disabled, placeholders are stripped.
     """
     if not use_color:
-        # Strip all $N placeholders
         return [re.sub(r"\$\d+", "", line) for line in art]
 
     result = []
     for line in art:
         styled = line
         for i, color_code in enumerate(logo_colors):
-            placeholder = f"${i + 1}"
-            if placeholder in styled:
-                # Wrap each occurrence: color + text until next placeholder or end
-                # Simple approach: replace $N with color, add reset before next $N or at end
-                styled = styled.replace(placeholder, color_code)
-        # Add reset at end of line if any color was used
-        if styled != line:
+            styled = styled.replace(f"${i + 1}", color_code)
+        if logo_colors:
+            if not styled.startswith(logo_colors[0]):
+                styled = logo_colors[0] + styled
             styled += "\033[0m"
         result.append(styled)
     return result
