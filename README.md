@@ -2,11 +2,14 @@
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
+> If you like this project, drop a ⭐ on [GitHub](https://github.com/vaproh/larpfetch) — it helps others find it.
+
 [![PyPI - Version](https://img.shields.io/pypi/v/larpfetch?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/larpfetch/)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/larpfetch?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/larpfetch/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/larpfetch?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/larpfetch/)
 [![GitHub License](https://img.shields.io/github/license/vaproh/larpfetch?style=flat-square)](LICENSE)
 [![GitHub last commit](https://img.shields.io/github/last-commit/vaproh/larpfetch?style=flat-square&logo=git&logoColor=white)](https://github.com/vaproh/larpfetch/commits/main)
+[![Built with Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Powered by psutil](https://img.shields.io/badge/powered%20by-psutil-00ADD8?style=flat-square)](https://github.com/giampaolo/psutil)
+[![Logos from fastfetch](https://img.shields.io/badge/logos-fastfetch-FF6B6B?style=flat-square)](https://github.com/fastfetch-cli/fastfetch)
 [![GitHub stars](https://img.shields.io/github/stars/vaproh/larpfetch?style=flat-square&logo=github&logoColor=white)](https://github.com/vaproh/larpfetch)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
