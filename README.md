@@ -2,9 +2,12 @@
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
-[![PyPI](https://img.shields.io/pypi/v/larpfetch?style=flat&label=PyPI)](https://pypi.org/project/larpfetch/)
-[![License](https://img.shields.io/github/license/vaproh/larpfetch?style=flat&label=License)](LICENSE)
-[![Last Commit](https://img.shields.io/github/last-commit/vaproh/larpfetch?style=flat&label=Updated)](https://github.com/vaproh/larpfetch/commits/main)
+[![PyPI - Version](https://img.shields.io/pypi/v/larpfetch?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/larpfetch/)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/larpfetch?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/larpfetch/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/larpfetch?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/larpfetch/)
+[![GitHub License](https://img.shields.io/github/license/vaproh/larpfetch?style=flat-square)](LICENSE)
+[![GitHub last commit](https://img.shields.io/github/last-commit/vaproh/larpfetch?style=flat-square&logo=git&logoColor=white)](https://github.com/vaproh/larpfetch/commits/main)
+[![GitHub stars](https://img.shields.io/github/stars/vaproh/larpfetch?style=flat-square&logo=github&logoColor=white)](https://github.com/vaproh/larpfetch)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
 
