@@ -183,6 +183,29 @@ The output may include occasional humorous lines:
 
 Easter eggs are deterministic, disableable via `[appearance] easter_eggs = false` or `LARPFETCH_NO_EASTER_EGGS=1`, and not offensive.
 
+## Not just a meme
+
+larpfetch is funny on purpose, but it's a real daily-driver fetch tool underneath:
+
+- Detects your actual system with `psutil` and platform-specific probes
+- Clean, aligned, color-aware output that respects `NO_COLOR` and narrow terminals
+- Scriptable: `--json`, `--minimal`, `--compact`, `--full`, and automatic pipe mode
+- Fully customizable: declarative `[display]` config, named profiles, and CLI overrides
+- Cross-platform (Linux, macOS, Windows) with graceful degradation
+
+### Reality vs delusion
+
+By default larpfetch shows your LARP identity. `--real-shit` shows only detected truth. The contrast is the whole point:
+
+| Field  | Real (`--real-shit`)     | Delusion (`-p nasa`)        |
+|---------|---------------------------|-----------------------------|
+| OS      | Arch Linux               | NASA Mission Control        |
+| CPU     | Ryzen 7 7840HS          | Quantum Potato 9000        |
+| Memory  | 32 GiB                   | 69 PiB                      |
+| GPU     | Radeon 780M              | RTX 6090 Ti Super Ultra    |
+
+`--diff-real` (planned for v1.4) will print exactly these differences inline.
+
 ## The Sacred Rule
 
 **The user's delusion is authoritative.**

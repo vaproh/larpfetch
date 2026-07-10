@@ -18,17 +18,19 @@
 - `--gpu-info` for detailed GPU detection
 - `--disk-info` for per-disk breakdown
 
-## v1.3 — Daily-Driver Customization
+## v1.3 — Daily-Driver Customization — Shipped
 
 Let users control exactly what their fetch looks like.
 
-- **Declarative display layout** — control which fields appear, their order, custom labels, separators, spacing, and whether unavailable fields are hidden
-- **Display density presets** — `--minimal`, `--compact`, `--full` backed by the declarative layout system
-- **Terminal width responsiveness** — renderer adapts to narrow terminals (split panes, mobile SSH, small windows)
-- **`--generate-config`** — produce a starter config with commented examples
-- **Better README visuals** — side-by-side reality vs delusion comparison, explicit "Not just a meme" section
-- **Profile-specific logos and themes** — profiles can recommend a logo/theme, user can still override
-- **Self-documenting config example**
+- **Declarative display layout** — control which fields appear, their order, custom labels, separators, spacing, and whether unavailable fields are hidden ✅
+- **Display density presets** — `--minimal`, `--compact`, `--full` backed by the declarative layout system ✅
+- **Terminal width responsiveness** — renderer adapts to narrow terminals (split panes, mobile SSH, small windows) ✅
+- **`--generate-config`** — produce a starter config with commented examples ✅
+- **Better README visuals** — side-by-side reality vs delusion comparison, explicit "Not just a meme" section ✅
+- **Profile-specific logos** — profiles can set a `logo` (built-in name or inline art); user can still override via `--logo` ✅
+- **Self-documenting config example** — `--generate-config` emits a fully commented, self-explanatory template ✅
+
+> Themes (separate from profiles) are deferred to v1.6.
 
 ## v1.4 — Reality vs Delusion
 

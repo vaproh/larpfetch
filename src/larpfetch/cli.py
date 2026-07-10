@@ -249,10 +249,13 @@ _GENERATE_CONFIG_TEMPLATE = """# larpfetch configuration
 
 # [profiles.NAME]
 # Define named profiles referenced via --profile NAME
+# A profile can set any field, plus an optional 'logo' (built-in name
+# or inline ASCII art). Missing fields inherit from [default], then real.
 # [profiles.templeos]
 # os = "TempleOS"
 # kernel = "4.14.0-temple"
 # shell = "HolyC"
+# logo = "templeos"
 
 [appearance]
 # General display settings
@@ -263,7 +266,8 @@ _GENERATE_CONFIG_TEMPLATE = """# larpfetch configuration
 
 [display]
 # Configure which fields appear and how they're formatted.
-# Uncomment to customize:
+# Uncomment to customize. Field names accept aliases like
+# 'host', 'ram', 'arch', 'packages', 'pkgs'.
 
 # fields = ["os", "kernel", "uptime", "shell", "cpu", "gpu", "memory"]
 
