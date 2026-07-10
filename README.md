@@ -11,7 +11,9 @@ A cross-platform terminal fetch utility that detects real system information and
 ## Demo
 
 <p align="center">
-  <img src="assets/demo.webp" alt="larpfetch demo" width="815">
+  <video src="assets/demo.mp4" width="816" controls muted loop>
+    Your browser does not support the video tag.
+  </video>
 </p>
 
 ## Installation
