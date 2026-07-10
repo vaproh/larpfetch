@@ -177,18 +177,6 @@ def render(
     logo_height = len(logo)
     logo_width = cols if cols is not None else get_logo_width(logo)
 
-    # Derive info text colors from logo palette
-    if logo_colors and use_color:
-        primary = logo_colors[0]
-        secondary = logo_colors[1] if len(logo_colors) > 1 else primary
-        info_label_color = primary
-        info_value_color = secondary
-        header_color = primary
-    else:
-        info_label_color = colors['GREEN']
-        info_value_color = colors['WHITE']
-        header_color = colors['CYAN']
-
     # Build info lines
     display_items = info.display_items()
 
@@ -196,17 +184,17 @@ def render(
     username = info.get("username", "unknown")
     hostname = info.get("hostname", "unknown")
     header = (
-        f"{colors['BOLD']}{header_color}{username}{colors['RESET']}"
-        f"@{colors['BOLD']}{header_color}{hostname}{colors['RESET']}"
+        f"{colors['BOLD']}{colors['CYAN']}{username}{colors['RESET']}"
+        f"@{colors['BOLD']}{colors['CYAN']}{hostname}{colors['RESET']}"
     )
     separator = "-" * _visible_len(f"{username}@{hostname}")
 
-    # Info lines with logo-derived colors
+    # Info lines with colors
     info_lines: list[str] = []
     for label, value in display_items:
         line = (
-            f"{info_label_color}{label}{colors['RESET']}:"
-            f" {info_value_color}{value}{colors['RESET']}"
+            f"{colors['GREEN']}{label}{colors['RESET']}:"
+            f" {colors['WHITE']}{value}{colors['RESET']}"
         )
         info_lines.append(line)
 
