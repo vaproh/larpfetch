@@ -133,6 +133,19 @@ Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runti
 6. Commit after every feature addition or change.
 7. Do not leave placeholders, TODOs, or broken code.
 
+## Publishing
+
+```bash
+# Load PyPI token from .env and publish
+export $(grep -v '^#' .env | xargs) && just publish
+
+# Or for a dry run:
+export $(grep -v '^#' .env | xargs) && just publish-dry
+
+# Tag the release
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
+
 Do not overengineer this. It is a fetch tool that lies.
 
 ## Demo GIF generation
