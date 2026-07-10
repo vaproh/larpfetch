@@ -170,7 +170,11 @@ larpfetch                              # Default mode
 larpfetch -p NAME                      # Select profile
 larpfetch --profile NAME               # Select profile (long form)
 larpfetch --distro NAME                # LARP as a specific distro
+larpfetch --logo NAME                  # Pick a specific logo by name
 larpfetch --small                      # Use small ASCII art
+larpfetch --cols N                     # Force column width for logo
+larpfetch --list-logos                 # List all available logos
+larpfetch --list-logos --search ubuntu # Search logos
 larpfetch --real-shit                  # Real system info only
 larpfetch --list-profiles              # List all profiles
 larpfetch --show-config                # Show current config
@@ -207,7 +211,7 @@ just all        # format + lint + test
 
 ## Roadmap
 
-- **v1.1**: `--logo`, `--list-logos`, pipe mode
+- **v1.1**: `--logo`, `--list-logos`, pipe mode, `--cols` ✨
 - **v1.2**: JSON output, package count detection, GPU/disk details
 - **v1.3**: More profiles, compact mode
 - **v2.0**: Plugins, custom themes, export profiles

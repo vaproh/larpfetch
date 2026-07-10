@@ -14,6 +14,7 @@ from larpfetch.config import (
     get_named_profiles,
     load_config,
 )
+from larpfetch.logos import LOGO_ART
 from larpfetch.profiles import get_builtin_profiles
 from larpfetch.renderer import render
 from larpfetch.resolver import resolve
@@ -62,6 +63,20 @@ def _list_profiles(config: dict) -> None:
         fields = profiles[name]
         desc = fields.get("os") or fields.get("distro") or "Custom identity"
         print(f"  {name:20s} {desc}")
+
+
+def _list_logos(search: str | None = None) -> None:
+    """Print available logo names."""
+    bases = sorted(n for n in LOGO_ART.keys() if not n.endswith("_small"))
+    if search:
+        search_lower = search.lower()
+        bases = [n for n in bases if search_lower in n]
+    if not bases:
+        print("No logos found.")
+        return
+    print(f"Available logos ({len(bases)}):")
+    for name in bases:
+        print(f"  {name}")
 
 
 def _show_config(config: dict) -> None:
@@ -142,6 +157,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Use small ASCII art variant of the logo",
     )
     parser.add_argument(
+        "--logo",
+        metavar="NAME",
+        help="Pick a specific logo by name",
+    )
+    parser.add_argument(
+        "--list-logos",
+        action="store_true",
+        help="List available logos and exit",
+    )
+    parser.add_argument(
+        "--search",
+        metavar="QUERY",
+        help="Search logos when used with --list-logos",
+    )
+    parser.add_argument(
+        "--cols",
+        type=int,
+        default=None,
+        metavar="N",
+        help="Force column width for the logo",
+    )
+    parser.add_argument(
         "--color",
         action="store_true",
         default=None,
@@ -181,6 +218,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     # --list-profiles
     if args.list_profiles:
         _list_profiles(config)
+        return
+
+    # --list-logos
+    if args.list_logos:
+        _list_logos(args.search)
         return
 
     # --show-config
@@ -226,8 +268,21 @@ def main(argv: Sequence[str] | None = None) -> None:
         real_shit=args.real_shit,
     )
 
+    # Pipe mode: suppress logo when stdout is not a TTY
+    if not sys.stdout.isatty():
+        appearance = dict(appearance)
+        appearance["pipe"] = True
+
     # Render
-    output = render(resolved, real, args.real_shit, appearance, small=args.small)
+    output = render(
+        resolved,
+        real,
+        args.real_shit,
+        appearance,
+        small=args.small,
+        logo_name=args.logo,
+        cols=args.cols,
+    )
     print(output)
 
 

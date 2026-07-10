@@ -90,14 +90,24 @@ def _resolve_logo(
     real_shit: bool,
     use_color: bool,
     small: bool = False,
+    logo_name: str | None = None,
 ) -> tuple[list[str], list[str]]:
     """Resolve which logo to use, returning (art, colors).
 
     Priority:
-    1. Profile's 'logo' field (if present and not --real-shit)
-    2. Real OS-based selection (if --real-shit)
-    3. Displayed OS-based selection
+    1. --logo CLI flag (highest)
+    2. Profile's 'logo' field (if present and not --real-shit)
+    3. Real OS-based selection (if --real-shit)
+    4. Displayed OS-based selection
     """
+    # --logo flag takes highest priority
+    if logo_name:
+        if logo_name in LOGO_ART:
+            if small:
+                small_key = f"{logo_name}_small"
+                if small_key in LOGO_ART:
+                    return list(LOGO_ART[small_key]), LOGO_COLORS.get(small_key, [])
+            return list(LOGO_ART[logo_name]), LOGO_COLORS.get(logo_name, [])
     if real_shit:
         display_os = real.get("os", real.get("distro", "Unknown"))
         if small:
@@ -137,6 +147,8 @@ def render(
     real_shit: bool,
     appearance: dict[str, Any] | None = None,
     small: bool = False,
+    logo_name: str | None = None,
+    cols: int | None = None,
 ) -> str:
     """Render the full larpfetch output."""
     appearance = appearance or {}
@@ -144,6 +156,7 @@ def render(
     use_color = _should_color(force_color)
     show_auth = appearance.get("show_authenticity", True)
     easter_eggs = appearance.get("easter_eggs", True)
+    pipe = appearance.get("pipe", False)
 
     colors = _get_colors(use_color)
 
@@ -151,10 +164,18 @@ def render(
     if not small:
         small = appearance.get("small", False)
 
-    logo_raw, logo_colors = _resolve_logo(info, real, real_shit, use_color, small=small)
+    logo_raw, logo_colors = _resolve_logo(
+        info, real, real_shit, use_color, small=small, logo_name=logo_name,
+    )
+
+    # Pipe mode: no logo
+    if pipe:
+        logo_raw = [""]
+        logo_colors = []
+
     logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)
-    logo_width = get_logo_width(logo)
+    logo_width = cols if cols is not None else get_logo_width(logo)
 
     # Build info lines
     display_items = info.display_items()
