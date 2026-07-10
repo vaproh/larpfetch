@@ -2,7 +2,7 @@
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
-[![asciicast](https://asciinema.org/a/1260539.svg)](https://asciinema.org/a/1260539)
+[![asciicast](https://asciinema.org/a/1260540.svg)](https://asciinema.org/a/1260540)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
 
