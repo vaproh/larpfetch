@@ -130,7 +130,8 @@ Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runti
 3. Work in small coherent changes following the roadmap.
 4. Run `just check` after each change.
 5. Test the CLI manually.
-6. Do not leave placeholders, TODOs, or broken code.
+6. Commit after every feature addition or change.
+7. Do not leave placeholders, TODOs, or broken code.
 
 Do not overengineer this. It is a fetch tool that lies.
 
