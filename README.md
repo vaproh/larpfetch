@@ -256,10 +256,6 @@ just all        # format + lint + test
 
 See [ROADMAP.md](ROADMAP.md) for full details.
 
-## License
-
-MIT — see [LICENSE](LICENSE)
-
 ## 💰 Support
 
 If you found my work helpful, feel free to support:
@@ -284,3 +280,7 @@ If you found my work helpful, feel free to support:
 **Litecoin (LTC)** `LXYZJ754RdVXzLkoKVA91wTYjYfRyxQ9pA`
 
 **Zcash** `t1bFWcooKThyQjQzrJACXXCYbNZLS7QUzmF`
+
+## License
+
+MIT — see [LICENSE](LICENSE)
