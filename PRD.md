@@ -97,6 +97,10 @@ Examples: `Authenticity: N%`, `Source: trust me bro`, `Disappointment: immeasura
 - No eval/exec, no shell=True, no network, no secrets
 - Python 3.11+, `psutil` only runtime dependency
 
+## Roadmap
+
+See [ROADMAP.md](ROADMAP.md) for the full detailed roadmap.
+
 ## Acceptance criteria
 
 1. `pip install larpfetch` installs working `larpfetch` command

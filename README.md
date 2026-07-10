@@ -256,12 +256,18 @@ just all        # format + lint + test
 
 ## Roadmap
 
-- **v1.1**: `--logo`, `--list-logos`, `--cols`, `--distro`, `--small` ✨
-- **v1.2**: JSON output, package count, shell/GPU/disk details ✨
-- **v1.3**: More profiles, compact mode
-- **v2.0**: Plugins, custom themes, export profiles
+| Release | Theme |
+|---------|-------|
+| **v1.1** | `--logo`, `--list-logos`, `--cols`, `--distro`, `--small` ✨ |
+| **v1.2** | JSON output, package count, shell/GPU/disk details ✨ |
+| **v1.3** | Daily-driver customization — declarative display, density presets, terminal responsiveness |
+| **v1.4** | Reality vs delusion — `--diff-real`, `--show-sources`, shareable profiles |
+| **v1.5** | More system fields — battery, resolution, DE/WM, terminal, device model |
+| **v1.6** | Themes and visual polish — catppuccin, dracula, nord, gruvbox |
+| **v1.7** | Diagnostics — `--explain`, `--diagnose`, `--timings`, shell completions |
+| **v2.0** | Stability — stable JSON/config schemas, cross-platform CI, performance targets |
 
-See [ROADMAP.md](ROADMAP.md) for full details.
+See [ROADMAP.md](ROADMAP.md) for the full detailed roadmap.
 
 ## 💰 Support
 
