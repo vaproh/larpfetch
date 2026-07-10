@@ -3,7 +3,6 @@
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
 [![PyPI](https://img.shields.io/pypi/v/larpfetch?style=flat&label=PyPI)](https://pypi.org/project/larpfetch/)
-[![Python](https://img.shields.io/pypi/pyversions/larpfetch?style=flat&label=Python)](https://pypi.org/project/larpfetch/)
 [![License](https://img.shields.io/github/license/vaproh/larpfetch?style=flat&label=License)](LICENSE)
 [![Last Commit](https://img.shields.io/github/last-commit/vaproh/larpfetch?style=flat&label=Updated)](https://github.com/vaproh/larpfetch/commits/main)
 
