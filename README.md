@@ -21,6 +21,20 @@ pipx install larpfetch
 > pipx uninstall larpfetch && pipx install --index-url https://pypi.org/simple/ larpfetch
 > ```
 
+### Upgrade
+
+```bash
+uv tool upgrade larpfetch           # uv
+pipx upgrade larpfetch              # pipx
+```
+
+### Clear cache
+
+```bash
+uv cache clean                      # uv
+pipx uninstall larpfetch && pipx install larpfetch  # pipx
+```
+
 ## Usage
 
 ```bash
