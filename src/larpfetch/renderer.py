@@ -217,7 +217,7 @@ def render(
         info_lines.append("")
 
     # Align and join
-    pad = logo_width + 2  # 2 spaces between logo and info
+    pad = logo_width + 4  # spacing between logo and info
     output_lines: list[str] = []
 
     # Header line
