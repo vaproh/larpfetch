@@ -82,6 +82,8 @@ Use TOML and `tomllib`. Expected sections: `[default]`, `[profiles.NAME]`, `[app
 
 Profiles can include a `logo` field to reference a built-in logo by name or provide inline custom ASCII art.
 
+Full config reference: `docs/CONFIG.md`.
+
 ## CLI
 
 Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--shell-info`, `--gpu-info`, `--disk-info`, `--version`, `--help`.

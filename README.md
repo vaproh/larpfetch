@@ -137,6 +137,8 @@ small = true                          # Always use small ASCII art
 - **macOS**: `~/Library/Application Support/larpfetch/config.toml`
 - **Windows**: `%APPDATA%\larpfetch\config.toml`
 
+For the full config reference (all fields, appearance options, profiles, inline logos), see [docs/CONFIG.md](docs/CONFIG.md).
+
 ## Precedence
 
 Normal mode:

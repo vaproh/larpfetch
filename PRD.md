@@ -68,6 +68,8 @@ Sections: `[default]`, `[profiles.NAME]`, `[appearance]`
 
 Profiles support a `logo` field (built-in name or inline ASCII art).
 
+Full config reference: `docs/CONFIG.md`.
+
 ## System detection
 
 Best-effort real detection of: username, hostname, OS, distro, kernel, architecture, uptime, shell, CPU, GPU, memory, disk, battery, DE, package manager.
