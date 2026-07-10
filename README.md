@@ -12,9 +12,7 @@ A cross-platform terminal fetch utility that detects real system information and
 ## Demo
 
 <p align="center">
-  <a href="https://asciinema.org/a/1260541?autoplay=1&speed=2">
-    <img src="https://asciinema.org/a/1260541.svg" width="654">
-  </a>
+  <img src="assets/demo.gif" alt="larpfetch demo" width="815">
 </p>
 
 ## Installation
