@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 from typing import Any, Sequence
 
@@ -191,6 +192,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Disable color output",
     )
     parser.add_argument("--version", action="version", version=f"larpfetch {__version__}")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output as JSON",
+    )
+    parser.add_argument(
+        "--shell-info",
+        action="store_true",
+        help="Show shell version in Shell field",
+    )
+    parser.add_argument(
+        "--gpu-info",
+        action="store_true",
+        help="Show GPU driver details in GPU field",
+    )
+    parser.add_argument(
+        "--disk-info",
+        action="store_true",
+        help="Show per-disk breakdown",
+    )
     return parser
 
 
@@ -231,7 +252,11 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     # Collect real system info
-    real = collect_all()
+    real = collect_all(
+        shell_info=args.shell_info,
+        gpu_info=args.gpu_info,
+        disk_info=args.disk_info,
+    )
 
     # Resolve display identity
     default_profile = get_default_profile(config)
@@ -272,6 +297,14 @@ def main(argv: Sequence[str] | None = None) -> None:
     if not sys.stdout.isatty():
         appearance = dict(appearance)
         appearance["pipe"] = True
+
+    # --json output
+    if args.json:
+        data = dict(resolved.to_dict())
+        if args.real_shit:
+            data = dict(real.to_dict())
+        print(json.dumps(data, indent=2))
+        return
 
     # Render
     output = render(

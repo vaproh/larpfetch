@@ -61,7 +61,7 @@ This invariant requires explicit automated tests.
 Use a normalized representation for system/display information. Known fields:
 
 - username, hostname, os, distro, os_version, kernel, architecture
-- uptime, shell, cpu, gpu, memory, disk, battery
+- uptime, shell, cpu, gpu, memory, disk, disk_detail, battery
 - de, package_manager, package_count
 
 Support arbitrary additional string fields from profiles and `--set`.
@@ -84,7 +84,7 @@ Profiles can include a `logo` field to reference a built-in logo by name or prov
 
 ## CLI
 
-Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--version`, `--help`.
+Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--shell-info`, `--gpu-info`, `--disk-info`, `--version`, `--help`.
 
 `--set` must be repeatable.
 

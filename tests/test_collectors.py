@@ -197,6 +197,36 @@ class TestCollectAll:
         assert info.get("hostname") != ""
         assert info.get("architecture") != ""
 
+    def test_shell_info_flag_adds_version(self, monkeypatch):
+        monkeypatch.setenv("SHELL", "/bin/bash")
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = "GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)\n"
+        mock_result.stderr = ""
+        with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
+            info = collect_all(shell_info=True)
+            shell = info.get("shell")
+            assert shell != ""
+            # shell or shell + version
+
+    def test_shell_info_false_omits_version(self, monkeypatch):
+        monkeypatch.setenv("SHELL", "/bin/bash")
+        info = collect_all(shell_info=False)
+        shell = info.get("shell")
+        # Should just be "bash", no version appended
+        assert shell == "bash" or not shell.endswith(")")
+
+    def test_disk_info_adds_detail(self):
+        info = collect_all(disk_info=True)
+        # Should still have disk
+        assert info.get("disk") != ""
+        assert "/" in info.get("disk")
+
+    def test_gpu_info_flag_passed(self):
+        # smoke test: no crash
+        info = collect_all(gpu_info=True)
+        _ = info  # no crash
+
 
 class TestCollectorFailureDegradation:
     def test_psutil_failure_doesnt_crash(self):

@@ -29,6 +29,10 @@ larpfetch -p nasa            # LARP as NASA Linux
 larpfetch -p hacker          # Become a Parrot OS hacker
 larpfetch --distro gentoo    # LARP as a specific distro
 larpfetch --small            # Use small ASCII art
+larpfetch --json             # Output as JSON
+larpfetch --shell-info       # Show shell version
+larpfetch --gpu-info         # Show GPU driver details
+larpfetch --disk-info        # Show per-disk breakdown
 larpfetch --real-shit        # Show only real detected values
 larpfetch --list-profiles    # List all available profiles
 larpfetch --show-config      # Show current configuration
@@ -176,6 +180,10 @@ larpfetch --cols N                     # Force column width for logo
 larpfetch --list-logos                 # List all available logos
 larpfetch --list-logos --search ubuntu # Search logos
 larpfetch --real-shit                  # Real system info only
+larpfetch --json                       # Output as JSON
+larpfetch --shell-info                 # Show shell version
+larpfetch --gpu-info                   # Show GPU driver details
+larpfetch --disk-info                  # Show per-disk breakdown
 larpfetch --list-profiles              # List all profiles
 larpfetch --show-config                # Show current config
 larpfetch --config /path/to/config.toml  # Custom config path
@@ -207,12 +215,12 @@ just check      # lint + test
 just all        # format + lint + test
 ```
 
-197 tests covering: config loading, profile resolution, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
+207 tests covering: config loading, profile resolution, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
 ## Roadmap
 
 - **v1.1**: `--logo`, `--list-logos`, `--cols`, `--distro`, `--small` ✨
-- **v1.2**: JSON output, package count detection, GPU/disk details
+- **v1.2**: JSON output, package count, shell/GPU/disk details ✨
 - **v1.3**: More profiles, compact mode
 - **v2.0**: Plugins, custom themes, export profiles
 

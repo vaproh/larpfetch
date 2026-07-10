@@ -37,6 +37,10 @@ Tagline: *LARP as any distro, hardware, or machine you want. Because reality is 
 larpfetch                          # Default mode
 larpfetch -p NAME                  # Select profile
 larpfetch --real-shit              # Real system info only
+larpfetch --json                   # JSON output
+larpfetch --shell-info             # Shell version
+larpfetch --gpu-info               # GPU driver details
+larpfetch --disk-info              # Per-disk breakdown
 larpfetch --list-profiles          # List all profiles
 larpfetch --show-config            # Show current config
 larpfetch --config PATH            # Custom config path
@@ -86,7 +90,7 @@ Examples: `Authenticity: N%`, `Source: trust me bro`, `Disappointment: immeasura
 
 ## Quality
 
-- 197+ tests covering config, resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
+- 207+ tests covering config, resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
 - Ruff lint clean
 - No eval/exec, no shell=True, no network, no secrets
 - Python 3.11+, `psutil` only runtime dependency

@@ -21,6 +21,7 @@ KNOWN_FIELDS = [
     "gpu",
     "memory",
     "disk",
+    "disk_detail",
     "battery",
     "de",
     "package_manager",
@@ -45,10 +46,11 @@ FIELD_LABELS: dict[str, str] = {
     "gpu": "GPU",
     "memory": "Memory",
     "disk": "Disk",
+    "disk_detail": "Disk Detail",
     "battery": "Battery",
     "de": "DE",
     "package_manager": "Packages",
-    "package_count": "Packages",
+    "package_count": "Package Count",
 }
 
 

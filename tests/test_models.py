@@ -94,3 +94,9 @@ class TestSystemInfo:
         assert FIELD_LABELS["gpu"] == "GPU"
         assert FIELD_LABELS["username"] == "User"
         assert FIELD_LABELS["hostname"] == "Host"
+
+    def test_disk_detail_in_known_fields(self):
+        assert "disk_detail" in KNOWN_FIELDS
+
+    def test_disk_detail_label(self):
+        assert FIELD_LABELS["disk_detail"] == "Disk Detail"

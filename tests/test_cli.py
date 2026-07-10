@@ -88,6 +88,26 @@ class TestBuildParser:
         args = parser.parse_args(["--no-color"])
         assert args.no_color is True
 
+    def test_json_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--json"])
+        assert args.json is True
+
+    def test_shell_info_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--shell-info"])
+        assert args.shell_info is True
+
+    def test_gpu_info_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--gpu-info"])
+        assert args.gpu_info is True
+
+    def test_disk_info_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--disk-info"])
+        assert args.disk_info is True
+
 
 class TestMain:
     def test_help_exits_cleanly(self, capsys):

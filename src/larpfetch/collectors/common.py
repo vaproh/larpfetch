@@ -41,7 +41,7 @@ def _fmt_uptime(seconds: float) -> str:
     return " ".join(parts)
 
 
-def collect_common() -> SystemInfo:
+def collect_common(disk_info: bool = False) -> SystemInfo:
     """Collect information common across all platforms."""
     info = SystemInfo(fields=OrderedDict())
 
@@ -86,6 +86,23 @@ def collect_common() -> SystemInfo:
             info.set("disk", f"{_fmt_bytes(du.used)} / {_fmt_bytes(du.total)}")
     except Exception:
         pass
+
+    # Per-disk breakdown
+    if disk_info and psutil is not None:
+        try:
+            parts = []
+            for part in psutil.disk_partitions():
+                try:
+                    usage = psutil.disk_usage(part.mountpoint)
+                    parts.append(
+                        f"{part.mountpoint}: {_fmt_bytes(usage.used)}/{_fmt_bytes(usage.total)}"
+                    )
+                except Exception:
+                    continue
+            if parts:
+                info.set("disk_detail", " | ".join(parts))
+        except Exception:
+            pass
 
     # Battery
     try:
@@ -137,19 +154,25 @@ def _detect_cpu() -> str:
     return "Unknown CPU"
 
 
-def collect_platform() -> SystemInfo:
+def collect_platform(
+    shell_info: bool = False,
+    gpu_info: bool = False,
+) -> SystemInfo:
     """Collect platform-specific information."""
     system = platform.system()
     if system == "Linux":
-        return _collect_linux()
+        return _collect_linux(shell_info=shell_info, gpu_info=gpu_info)
     elif system == "Darwin":
-        return _collect_macos()
+        return _collect_macos(shell_info=shell_info, gpu_info=gpu_info)
     elif system == "Windows":
-        return _collect_windows()
+        return _collect_windows(shell_info=shell_info, gpu_info=gpu_info)
     return SystemInfo(fields=OrderedDict())
 
 
-def _collect_linux() -> SystemInfo:
+def _collect_linux(
+    shell_info: bool = False,
+    gpu_info: bool = False,
+) -> SystemInfo:
     info = SystemInfo(fields=OrderedDict())
 
     # OS / distro from /etc/os-release
@@ -217,7 +240,10 @@ def _collect_linux() -> SystemInfo:
     return info
 
 
-def _collect_macos() -> SystemInfo:
+def _collect_macos(
+    shell_info: bool = False,
+    gpu_info: bool = False,
+) -> SystemInfo:
     info = SystemInfo(fields=OrderedDict())
 
     # macOS version
@@ -264,7 +290,10 @@ def _collect_macos() -> SystemInfo:
     return info
 
 
-def _collect_windows() -> SystemInfo:
+def _collect_windows(
+    shell_info: bool = False,
+    gpu_info: bool = False,
+) -> SystemInfo:
     info = SystemInfo(fields=OrderedDict())
 
     # Windows version
@@ -316,9 +345,90 @@ def _collect_windows() -> SystemInfo:
     return info
 
 
-def collect_all() -> SystemInfo:
+def collect_all(
+    shell_info: bool = False,
+    gpu_info: bool = False,
+    disk_info: bool = False,
+) -> SystemInfo:
     """Collect all available system information."""
-    info = collect_common()
-    platform_info = collect_platform()
+    info = collect_common(disk_info=disk_info)
+    platform_info = collect_platform(shell_info=shell_info, gpu_info=gpu_info)
     info.update_from(platform_info.to_dict())
+
+    # Package count detection
+    pkg = _detect_packages()
+    if pkg:
+        info.set("package_count", pkg)
+
+    # Shell version detail
+    if shell_info:
+        shell_ver = _detect_shell_version()
+        if shell_ver:
+            cur = info.get("shell", "")
+            if cur:
+                info.set("shell", f"{cur} {shell_ver}")
+
+    # GPU detail
+    if gpu_info:
+        gpu_drv = _detect_gpu_driver()
+        if gpu_drv:
+            cur = info.get("gpu", "")
+            if cur and gpu_drv:
+                info.set("gpu", f"{cur} ({gpu_drv})")
+
     return info
+
+
+def _detect_packages() -> str:
+    """Detect installed package count from the system package manager."""
+    managers = [
+        (["dpkg-query", "-f", "${binary:Package}\n", "-W"], lambda o: len(o.strip().splitlines())),
+        (["pacman", "-Q", "-q"], lambda o: len(o.strip().splitlines())),
+        (["rpm", "-qa", "--queryformat", "%{NAME}\n"], lambda o: len(o.strip().splitlines())),
+        (["brew", "list", "--formula"], lambda o: len(o.strip().splitlines())),
+        (["winget", "list", "--accept-source-agreements"],
+         lambda o: len(o.strip().splitlines()) - 2),
+    ]
+    for cmd, counter in managers:
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=5)
+            if result.returncode == 0 and result.stdout.strip():
+                count = counter(result.stdout)
+                if count > 0:
+                    return str(count)
+        except Exception:
+            continue
+    return ""
+
+
+def _detect_shell_version() -> str:
+    """Detect shell version."""
+    shell = os.environ.get("SHELL", "")
+    if not shell:
+        return ""
+    try:
+        result = subprocess.run([shell, "--version"], capture_output=True, text=True, timeout=3)
+        if result.returncode == 0:
+            line = result.stdout.splitlines()[0] if result.stdout else ""
+            for word in line.split():
+                if word[0].isdigit():
+                    return word
+    except Exception:
+        pass
+    return ""
+
+
+def _detect_gpu_driver() -> str:
+    """Detect GPU driver version."""
+    try:
+        result = subprocess.run(
+            ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+            capture_output=True, text=True, timeout=3,
+        )
+        if result.returncode == 0:
+            driver = result.stdout.strip()
+            if driver:
+                return f"Driver: {driver}"
+    except Exception:
+        pass
+    return ""

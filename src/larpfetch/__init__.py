@@ -1,3 +1,3 @@
 """larpfetch: LARP as any distro, hardware, or machine you want."""
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"
