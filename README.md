@@ -11,17 +11,7 @@ A cross-platform terminal fetch utility that detects real system information and
 ## Demo
 
 <p align="center">
-  <video
-    src="https://github.com/vaproh/larpfetch/releases/download/demo-assets/larpfetch_demo.mp4"
-    poster="assets/demo.gif"
-    controls
-    muted
-    autoplay
-    loop
-    playsinline
-    width="816">
-    <img src="assets/demo.gif" alt="larpfetch demo" width="816">
-  </video>
+  <img src="assets/demo.gif" alt="larpfetch demo" width="816">
 </p>
 
 ## Installation

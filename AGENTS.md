@@ -131,3 +131,49 @@ Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runti
 6. Do not leave placeholders, TODOs, or broken code.
 
 Do not overengineer this. It is a fetch tool that lies.
+
+## Demo GIF generation
+
+Record with asciinema, render with agg:
+
+```bash
+# 1. Write demo runner script
+cat > /tmp/demo_runner.sh << 'SCRIPT'
+#!/bin/bash
+export PATH="$HOME/.local/bin:$PATH"
+_type() {
+  local s="$1"
+  for ((i=0; i<${#s}; i++)); do printf '\033[1;33m%s\033[0m' "${s:$i:1}"; sleep 0.03; done
+}
+_clear() { printf '\033[2J\033[H'; }
+_clear; sleep 0.5
+printf '\033[1;36mλ\033[0m › '; _type "larpfetch"; echo; sleep 0.3; larpfetch; sleep 3
+_clear; printf '\033[1;36mλ\033[0m › '; _type "larpfetch -p templeos"; echo; sleep 0.3; larpfetch -p templeos; sleep 3
+_clear; printf '\033[1;36mλ\033[0m › '; _type "larpfetch --json"; echo; sleep 0.3; larpfetch --json; sleep 2; echo
+SCRIPT
+chmod +x /tmp/demo_runner.sh
+
+# 2. Record
+rm -f /tmp/larpfetch_demo.cast
+asciinema rec /tmp/larpfetch_demo.cast \
+  --command "stty cols 95 rows 24 && /tmp/demo_runner.sh" \
+  --overwrite
+
+# 3. Fix header dimensions
+python3 -c "
+import json
+with open('/tmp/larpfetch_demo.cast') as f:
+    h = json.loads(f.readline()); d = f.read()
+h['term']['cols'] = 95; h['term']['rows'] = 24
+with open('/tmp/larpfetch_demo.cast', 'w') as f:
+    f.write(json.dumps(h, separators=(',', ':')) + '\n' + d)
+"
+
+# 4. Download agg if needed
+which agg || curl -sL https://github.com/asciinema/agg/releases/latest/download/agg-x86_64-unknown-linux-gnu -o /tmp/agg && chmod +x /tmp/agg
+AGG=/tmp/agg
+
+# 5. Render GIF
+$AGG --theme github-dark --cols 95 --rows 24 --font-size 14 --speed 1 \
+  /tmp/larpfetch_demo.cast assets/demo.gif
+```
