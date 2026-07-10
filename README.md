@@ -10,7 +10,6 @@
 [![Built with Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Powered by psutil](https://img.shields.io/badge/powered%20by-psutil-00ADD8?style=flat-square)](https://github.com/giampaolo/psutil)
 [![Logos from fastfetch](https://img.shields.io/badge/logos-fastfetch-FF6B6B?style=flat-square)](https://github.com/fastfetch-cli/fastfetch)
-[![GitHub stars](https://img.shields.io/github/stars/vaproh/larpfetch?style=flat-square&logo=github&logoColor=white)](https://github.com/vaproh/larpfetch)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
 
