@@ -2,9 +2,20 @@
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
-[![asciicast](https://asciinema.org/a/1260541.svg)](https://asciinema.org/a/1260541)
+[![PyPI](https://img.shields.io/pypi/v/larpfetch?style=flat&label=PyPI)](https://pypi.org/project/larpfetch/)
+[![Python](https://img.shields.io/pypi/pyversions/larpfetch?style=flat&label=Python)](https://pypi.org/project/larpfetch/)
+[![License](https://img.shields.io/github/license/vaproh/larpfetch?style=flat&label=License)](LICENSE)
+[![Last Commit](https://img.shields.io/github/last-commit/vaproh/larpfetch?style=flat&label=Updated)](https://github.com/vaproh/larpfetch/commits/main)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
+
+## Demo
+
+<p align="center">
+  <a href="https://asciinema.org/a/1260541?autoplay=1&speed=2">
+    <img src="https://asciinema.org/a/1260541.svg" width="654">
+  </a>
+</p>
 
 ## Installation
 
