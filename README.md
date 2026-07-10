@@ -259,3 +259,28 @@ See [ROADMAP.md](ROADMAP.md) for full details.
 ## License
 
 MIT — see [LICENSE](LICENSE)
+
+## 💰 Support
+
+If you found my work helpful, feel free to support:
+
+### One-time
+
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-F16061?style=for-the-badge&logo=ko-fi&logoColor=white)](https://ko-fi.com/vaproh)
+[![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/vaproh)
+
+### Crypto
+
+**Ethereum (ERC-20)** `0xD78C15C6932356e57c75a050a602474372804714`
+
+**BNB Smart Chain (BEP-20)** `0xD78C15C6932356e57c75a050a602474372804714`
+
+**Solana** `CvAZzE6jTwxQq1npGzeoTBByj7Ap4REmuukf3BeiuyHi`
+
+**Bitcoin (BTC)** `bc1q7tct80xelr57zdmvcux495dec8l4m2t8eqdzn4`
+
+**Tron (TRC-20)** `TKvaQHMqvzeX2UAz6Cz2WRckRh28Hjd2Xy`
+
+**Litecoin (LTC)** `LXYZJ754RdVXzLkoKVA91wTYjYfRyxQ9pA`
+
+**Zcash** `t1bFWcooKThyQjQzrJACXXCYbNZLS7QUzmF`
