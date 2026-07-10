@@ -223,6 +223,12 @@ larpfetch --version                    # Show version
 larpfetch --help                       # Show help
 ```
 
+## Resources
+
+- [Configuration docs](docs/CONFIG.md) — full config reference
+- [Changelog](CHANGELOG.md) — version history
+- [Roadmap](ROADMAP.md) — planned features
+
 ## Development
 
 ```bash
