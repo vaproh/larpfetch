@@ -78,15 +78,17 @@ Do not accidentally implement custom profiles as total replacements. Missing fie
 
 ## Configuration
 
-Use TOML and `tomllib`. Expected sections: `[default]`, `[profiles.NAME]`, `[appearance]`.
+Use TOML and `tomllib`. Expected sections: `[default]`, `[profiles.NAME]`, `[appearance]`, `[display]`.
 
 Profiles can include a `logo` field to reference a built-in logo by name or provide inline custom ASCII art.
+
+`[display]` controls field order, labels, separator, and whether unavailable values are hidden.
 
 Full config reference: `docs/CONFIG.md`.
 
 ## CLI
 
-Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--shell-info`, `--gpu-info`, `--disk-info`, `--version`, `--help`.
+Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--shell-info`, `--gpu-info`, `--disk-info`, `--minimal`, `--compact`, `--full`, `--generate-config`, `--version`, `--help`.
 
 `--set` must be repeatable.
 
@@ -111,7 +113,7 @@ Dry and sparse. Easter eggs must be deterministic under test and disableable.
 
 ## Testing
 
-At minimum: config loading, profile resolution, `--real-shit` invariant (ignores all fake inputs), CLI parsing, logo selection, ANSI alignment, `NO_COLOR`, collector degradation, easter egg determinism, installable entry point.
+At minimum: config loading, display layout config, profile resolution, `--real-shit` invariant (ignores all fake inputs), CLI parsing, logo selection, ANSI alignment, `NO_COLOR`, collector degradation, easter egg determinism, installable entry point.
 
 Mock platform-specific system calls in unit tests.
 

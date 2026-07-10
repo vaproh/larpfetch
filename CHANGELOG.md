@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.0
+
+- Declarative `[display]` config section with field ordering, labels, separator, and hide-unavailable
+- CLI density presets: `--minimal`, `--compact`, `--full`
+- `--generate-config` starter config output
+- Terminal-width-aware logo suppression
+- 241 tests
+
 ## v1.2.0
 
 - `--json` flag for JSON output

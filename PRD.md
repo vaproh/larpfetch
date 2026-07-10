@@ -18,6 +18,7 @@ Tagline: *LARP as any distro, hardware, or machine you want. Because reality is 
 - Permit arbitrary combinations without compatibility validation
 - Provide `--real-shit` to bypass all LARP values
 - Support temporary CLI overrides
+- Support declarative display layout via `[display]` config and CLI density presets
 - Include 533 colored ASCII logos from fastfetch (MIT licensed)
 - Support inline custom ASCII art in profiles
 - Be fast, small, testable, and funny without being obnoxious
@@ -45,6 +46,10 @@ larpfetch --list-profiles          # List all profiles
 larpfetch --show-config            # Show current config
 larpfetch --config PATH            # Custom config path
 larpfetch --set key=value          # Override field (repeatable)
+larpfetch --minimal                # Short field preset
+larpfetch --compact                # Standard field preset
+larpfetch --full                   # Show all fields
+larpfetch --generate-config        # Print starter config
 larpfetch --color                  # Force color
 larpfetch --no-color               # Disable color
 larpfetch --version                # Show version
@@ -64,9 +69,11 @@ TOML at platform-specific paths:
 - macOS: `~/Library/Application Support/larpfetch/config.toml`
 - Windows: `%APPDATA%\larpfetch\config.toml`
 
-Sections: `[default]`, `[profiles.NAME]`, `[appearance]`
+Sections: `[default]`, `[profiles.NAME]`, `[appearance]`, `[display]`
 
 Profiles support a `logo` field (built-in name or inline ASCII art).
+
+`[display]` supports field ordering, custom labels, a custom separator, and hiding unavailable values.
 
 Full config reference: `docs/CONFIG.md`.
 
@@ -92,7 +99,7 @@ Examples: `Authenticity: N%`, `Source: trust me bro`, `Disappointment: immeasura
 
 ## Quality
 
-- 207+ tests covering config, resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
+- 241+ tests covering config, display layout, resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
 - Ruff lint clean
 - No eval/exec, no shell=True, no network, no secrets
 - Python 3.11+, `psutil` only runtime dependency

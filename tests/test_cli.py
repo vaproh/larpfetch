@@ -108,6 +108,26 @@ class TestBuildParser:
         args = parser.parse_args(["--disk-info"])
         assert args.disk_info is True
 
+    def test_minimal_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--minimal"])
+        assert args.minimal is True
+
+    def test_compact_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--compact"])
+        assert args.compact is True
+
+    def test_full_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--full"])
+        assert args.full is True
+
+    def test_generate_config_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--generate-config"])
+        assert args.generate_config is True
+
 
 class TestMain:
     def test_help_exits_cleanly(self, capsys):
@@ -353,3 +373,49 @@ show_authenticity = true
         main(["--color"])
         captured = capsys.readouterr()
         assert "\033[" in captured.out
+
+    def test_generate_config_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--generate-config"])
+        captured = capsys.readouterr()
+        assert "[display]" in captured.out
+        assert "[default]" in captured.out
+        assert "[appearance]" in captured.out
+
+    def test_minimal_flag_produces_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--minimal"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0
+
+    def test_compact_flag_produces_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--compact"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0
+
+    def test_full_flag_produces_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--full"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0

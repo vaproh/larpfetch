@@ -8,6 +8,8 @@ import tomllib
 from pathlib import Path
 from typing import Any
 
+from larpfetch.models import DisplayConfig
+
 # Platform default config paths
 if sys.platform == "darwin":
     _DEFAULT_CONFIG_DIR = Path.home() / "Library" / "Application Support" / "larpfetch"
@@ -40,13 +42,13 @@ def _resolve_config_path(explicit: str | None = None) -> Path | None:
 def load_config(path: str | None = None) -> dict[str, Any]:
     """Load and parse a TOML config file.
 
-    Returns a dict with keys: default, profiles, appearance.
+    Returns a dict with keys: default, profiles, appearance, display.
     Missing sections default to empty dicts.
     Raises FileNotFoundError or tomllib.TOMLDecodeError on failure.
     """
     config_path = _resolve_config_path(path)
     if config_path is None:
-        return {"default": {}, "profiles": {}, "appearance": {}}
+        return {"default": {}, "profiles": {}, "appearance": {}, "display": {}}
 
     with open(config_path, "rb") as f:
         data = tomllib.load(f)
@@ -55,6 +57,7 @@ def load_config(path: str | None = None) -> dict[str, Any]:
         "default": data.get("default", {}),
         "profiles": data.get("profiles", {}),
         "appearance": data.get("appearance", {}),
+        "display": data.get("display", {}),
     }
 
 
@@ -74,3 +77,22 @@ def get_named_profiles(config: dict[str, Any]) -> dict[str, dict[str, str]]:
 def get_appearance(config: dict[str, Any]) -> dict[str, Any]:
     """Extract appearance settings."""
     return config.get("appearance", {})
+
+
+def get_display_config(config: dict[str, Any]) -> DisplayConfig:
+    """Extract display configuration from the [display] section."""
+    raw = config.get("display", {})
+    fields: list[str] | None = None
+    if "fields" in raw:
+        fields = [str(f) for f in raw["fields"]]
+    field_labels: dict[str, str] | None = None
+    if "labels" in raw:
+        field_labels = {str(k): str(v) for k, v in raw["labels"].items()}
+    separator: str = str(raw.get("separator", ": "))
+    hide_unavailable: bool = raw.get("hide_unavailable", False)
+    return DisplayConfig(
+        fields=fields,
+        field_labels=field_labels,
+        separator=separator,
+        hide_unavailable=hide_unavailable,
+    )

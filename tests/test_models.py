@@ -2,7 +2,14 @@
 
 from collections import OrderedDict
 
-from larpfetch.models import FIELD_LABELS, KNOWN_FIELDS, SystemInfo
+from larpfetch.models import (
+    DENSITY_PRESETS,
+    FIELD_ALIASES,
+    FIELD_LABELS,
+    KNOWN_FIELDS,
+    DisplayConfig,
+    SystemInfo,
+)
 
 
 class TestSystemInfo:
@@ -100,3 +107,90 @@ class TestSystemInfo:
 
     def test_disk_detail_label(self):
         assert FIELD_LABELS["disk_detail"] == "Disk Detail"
+
+    def test_display_config_filters_fields(self):
+        info = SystemInfo(
+            fields=OrderedDict(
+                [("os", "Linux"), ("kernel", "6.8.0"), ("cpu", "Intel")]
+            )
+        )
+        cfg = DisplayConfig(fields=["os", "cpu"])
+        items = info.display_items(cfg)
+        labels = [lab for lab, _ in items]
+        assert "OS" in labels
+        assert "CPU" in labels
+        assert "Kernel" not in labels
+
+    def test_display_config_ordering(self):
+        info = SystemInfo(
+            fields=OrderedDict(
+                [("os", "Linux"), ("kernel", "6.8.0"), ("cpu", "Intel")]
+            )
+        )
+        cfg = DisplayConfig(fields=["cpu", "os"])
+        items = info.display_items(cfg)
+        labels = [lab for lab, _ in items]
+        assert labels.index("CPU") < labels.index("OS")
+
+    def test_display_config_custom_labels(self):
+        info = SystemInfo(fields=OrderedDict([("memory", "16 GiB")]))
+        cfg = DisplayConfig(field_labels={"memory": "RAM"})
+        items = info.display_items(cfg)
+        assert items[0][0] == "RAM"
+
+    def test_display_config_hide_unavailable(self):
+        info = SystemInfo(
+            fields=OrderedDict([("os", "Linux"), ("gpu", ""), ("cpu", "Intel")])
+        )
+        cfg = DisplayConfig(fields=["os", "gpu", "cpu"], hide_unavailable=True)
+        items = info.display_items(cfg)
+        labels = [lab for lab, _ in items]
+        assert "GPU" not in labels
+        assert "OS" in labels
+        assert "CPU" in labels
+
+    def test_display_config_show_unavailable_by_default(self):
+        info = SystemInfo(
+            fields=OrderedDict([("os", "Linux"), ("gpu", "")])
+        )
+        cfg = DisplayConfig(fields=["os", "gpu"])
+        items = info.display_items(cfg)
+        labels = [lab for lab, _ in items]
+        assert "GPU" in labels
+
+    def test_display_config_field_aliases(self):
+        info = SystemInfo(
+            fields=OrderedDict([("hostname", "myhost"), ("memory", "16 GiB")])
+        )
+        cfg = DisplayConfig(fields=["host", "ram"])
+        items = info.display_items(cfg)
+        labels = [lab for lab, _ in items]
+        assert "Host" in labels
+        assert "Memory" in labels
+
+
+class TestDensityPresets:
+    def test_minimal_has_core_fields(self):
+        fields = DENSITY_PRESETS["minimal"]
+        assert "os" in fields
+        assert "kernel" in fields
+        assert "cpu" in fields
+        assert "memory" in fields
+
+    def test_compact_has_more_fields(self):
+        assert len(DENSITY_PRESETS["compact"]) > len(DENSITY_PRESETS["minimal"])
+
+    def test_all_presets_exist(self):
+        assert "minimal" in DENSITY_PRESETS
+        assert "compact" in DENSITY_PRESETS
+
+
+class TestFieldAliases:
+    def test_host_alias(self):
+        assert FIELD_ALIASES["host"] == "hostname"
+
+    def test_packages_alias(self):
+        assert FIELD_ALIASES["packages"] == "package_manager"
+
+    def test_ram_alias(self):
+        assert FIELD_ALIASES["ram"] == "memory"

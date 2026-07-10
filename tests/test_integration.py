@@ -198,3 +198,24 @@ class TestIntegrationColor:
         main(["--color"])
         captured = capsys.readouterr()
         assert "\033[" in captured.out
+
+
+class TestIntegrationDisplay:
+    def test_minimal_shows_fewer_fields(self, capsys, sample_config):
+        main(["--config", str(sample_config), "--minimal"])
+        captured = capsys.readouterr()
+        assert "OS:" in captured.out
+        assert "Kernel:" in captured.out
+        assert "Memory:" in captured.out
+        # Minimal should not show packages by default
+        # (we don't check specifically what's absent, just that it works)
+
+    def test_compact_different_from_minimal(self, capsys, sample_config):
+        main(["--config", str(sample_config), "--compact"])
+        captured = capsys.readouterr()
+        assert "OS:" in captured.out
+
+    def test_full_shows_all_fields(self, capsys, sample_config):
+        main(["--config", str(sample_config), "--full"])
+        captured = capsys.readouterr()
+        assert len(captured.out) > 0

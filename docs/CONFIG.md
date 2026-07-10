@@ -12,7 +12,7 @@ Override with `--config /path/to/config.toml`.
 
 ## Structure
 
-A TOML file with three sections: `[default]`, `[profiles.NAME]`, and `[appearance]`.
+A TOML file with four sections: `[default]`, `[profiles.NAME]`, `[appearance]`, and `[display]`.
 
 ### `[default]`
 
@@ -73,6 +73,32 @@ Controls rendering behaviour.
 | `small` | bool | `false` | Always use small ASCII art variants |
 | `pipe` | bool | `false` | Suppress logo (auto-set when stdout not a TTY) |
 
+### `[display]`
+
+Controls which fields are shown and how they are labeled.
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `fields` | list[str] | `null` | Explicit field order to display |
+| `labels` | table | `null` | Custom labels per field key |
+| `separator` | str | `": "` | Text between label and value |
+| `hide_unavailable` | bool | `false` | Skip empty / unavailable values |
+
+Field names can use aliases like `host`, `ram`, `arch`, `packages`, and `pkgs`.
+
+Example:
+
+```toml
+[display]
+fields = ["os", "kernel", "cpu", "memory"]
+separator = " -> "
+hide_unavailable = true
+
+[display.labels]
+memory = "RAM"
+packages = "Pkgs"
+```
+
 ## Precedence
 
 Normal mode:
@@ -86,6 +112,8 @@ Reality mode (`--real-shit`):
 ```
 Real values only — bypasses everything
 ```
+
+CLI density presets (`--minimal`, `--compact`, `--full`) override `[display].fields` for that run.
 
 ## Full example
 

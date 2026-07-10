@@ -7,6 +7,7 @@ import pytest
 from larpfetch.config import (
     get_appearance,
     get_default_profile,
+    get_display_config,
     get_named_profiles,
     load_config,
 )
@@ -128,3 +129,53 @@ class TestGetAppearance:
         config = {}
         result = get_appearance(config)
         assert result == {}
+
+
+class TestGetDisplayConfig:
+    def test_no_display_section_returns_defaults(self):
+        config = {}
+        dc = get_display_config(config)
+        assert dc.fields is None
+        assert dc.field_labels is None
+        assert dc.separator == ": "
+        assert dc.hide_unavailable is False
+
+    def test_fields_from_config(self):
+        config = {"display": {"fields": ["os", "kernel", "cpu"]}}
+        dc = get_display_config(config)
+        assert dc.fields == ["os", "kernel", "cpu"]
+
+    def test_labels_from_config(self):
+        config = {"display": {"labels": {"memory": "RAM", "packages": "Pkgs"}}}
+        dc = get_display_config(config)
+        assert dc.field_labels["memory"] == "RAM"
+        assert dc.field_labels["packages"] == "Pkgs"
+
+    def test_separator(self):
+        config = {"display": {"separator": " -> "}}
+        dc = get_display_config(config)
+        assert dc.separator == " -> "
+
+    def test_hide_unavailable(self):
+        config = {"display": {"hide_unavailable": True}}
+        dc = get_display_config(config)
+        assert dc.hide_unavailable is True
+
+    def test_display_section_in_full_config(self, tmp_path):
+        config_file = tmp_path / "config.toml"
+        config_file.write_text("""
+[default]
+os = "Arch Linux"
+
+[display]
+fields = ["os", "kernel"]
+separator = " :: "
+
+[display.labels]
+memory = "RAM"
+""")
+        config = load_config(str(config_file))
+        dc = get_display_config(config)
+        assert dc.fields == ["os", "kernel"]
+        assert dc.separator == " :: "
+        assert dc.field_labels["memory"] == "RAM"

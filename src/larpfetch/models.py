@@ -53,6 +53,52 @@ FIELD_LABELS: dict[str, str] = {
     "package_count": "Package Count",
 }
 
+# User-friendly aliases for config field references
+FIELD_ALIASES: dict[str, str] = {
+    "host": "hostname",
+    "pkgs": "package_manager",
+    "packages": "package_manager",
+    "ram": "memory",
+    "arch": "architecture",
+}
+
+# Density presets
+DENSITY_PRESETS: dict[str, list[str]] = {
+    "minimal": [
+        "os",
+        "kernel",
+        "uptime",
+        "cpu",
+        "memory",
+        "shell",
+    ],
+    "compact": [
+        "username",
+        "hostname",
+        "os",
+        "kernel",
+        "uptime",
+        "shell",
+        "cpu",
+        "gpu",
+        "memory",
+        "disk",
+        "de",
+        "package_manager",
+        "package_count",
+    ],
+}
+
+
+@dataclass
+class DisplayConfig:
+    """Configuration for how fields are displayed."""
+
+    fields: list[str] | None = None
+    field_labels: dict[str, str] | None = None
+    separator: str = ": "
+    hide_unavailable: bool = False
+
 
 @dataclass
 class SystemInfo:
@@ -88,17 +134,44 @@ class SystemInfo:
             ordered[k] = str(v)
         return cls(fields=ordered)
 
-    def display_items(self) -> list[tuple[str, str]]:
-        """Return (label, value) pairs in canonical display order."""
+    def display_items(
+        self, display_config: DisplayConfig | None = None
+    ) -> list[tuple[str, str]]:
+        """Return (label, value) pairs in canonical display order.
+
+        If display_config is provided, its fields, labels, and
+        hide_unavailable settings override the defaults.
+        """
         items: list[tuple[str, str]] = []
-        # First, known fields in canonical order
-        for key in KNOWN_FIELDS:
-            if key in self.fields:
-                label = FIELD_LABELS.get(key, key.replace("_", " ").title())
-                items.append((label, self.fields[key]))
-        # Then, any custom fields (deterministic insertion order), skipping meta fields
-        for key in self.fields:
-            if key not in KNOWN_FIELDS and key not in META_FIELDS:
-                label = key.replace("_", " ").title()
-                items.append((label, self.fields[key]))
+        custom_labels = display_config.field_labels if display_config else None
+        hide_unavail = display_config.hide_unavailable if display_config else False
+
+        def label_for(key: str) -> str:
+            if custom_labels and key in custom_labels:
+                return custom_labels[key]
+            return FIELD_LABELS.get(key, key.replace("_", " ").title())
+
+        if display_config and display_config.fields is not None:
+            field_order = [FIELD_ALIASES.get(f, f) for f in display_config.fields]
+            for key in field_order:
+                if key not in self.fields:
+                    continue
+                value = self.fields[key]
+                if hide_unavail and not value:
+                    continue
+                items.append((label_for(key), value))
+        else:
+            for key in KNOWN_FIELDS:
+                if key in self.fields:
+                    value = self.fields[key]
+                    if hide_unavail and not value:
+                        continue
+                    items.append((label_for(key), value))
+            for key in self.fields:
+                if key not in KNOWN_FIELDS and key not in META_FIELDS:
+                    value = self.fields[key]
+                    if hide_unavail and not value:
+                        continue
+                    items.append((label_for(key), value))
+
         return items

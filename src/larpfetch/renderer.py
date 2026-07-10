@@ -9,7 +9,7 @@ from typing import Any
 
 from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
 from larpfetch.logos import LOGO_ART, LOGO_COLORS, _normalize, get_logo_width, select_logo
-from larpfetch.models import SystemInfo
+from larpfetch.models import DisplayConfig, SystemInfo
 
 # Original ANSI color values (never mutated)
 _COLOR_VALUES = {
@@ -146,6 +146,7 @@ def render(
     small: bool = False,
     logo_name: str | None = None,
     cols: int | None = None,
+    display_config: DisplayConfig | None = None,
 ) -> str:
     """Render the full larpfetch output."""
     appearance = appearance or {}
@@ -161,6 +162,10 @@ def render(
     if not small:
         small = appearance.get("small", False)
 
+    # Terminal width responsiveness: if terminal is very narrow, force small
+    if cols is not None and cols < 60:
+        small = True
+
     logo_raw, logo_colors = _resolve_logo(
         info, real, real_shit, use_color, small=small, logo_name=logo_name,
     )
@@ -170,12 +175,26 @@ def render(
         logo_raw = [""]
         logo_colors = []
 
+    # If terminal is too narrow to fit logo + info, hide the logo entirely
+    min_info_width = 20
+    if (
+        cols is not None
+        and not pipe
+        and logo_raw != [""]
+        and get_logo_width(logo_raw) + min_info_width + 4 > cols
+    ):
+        logo_raw = [""]
+        logo_colors = []
+
     logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)
     logo_width = cols if cols is not None else get_logo_width(logo)
 
-    # Build info lines
-    display_items = info.display_items()
+    # Build info lines with display config
+    display_items = info.display_items(display_config)
+    info_separator = ": "
+    if display_config and display_config.separator:
+        info_separator = display_config.separator
 
     # Username@Hostname header
     username = info.get("username", "unknown")
@@ -186,12 +205,12 @@ def render(
     )
     separator = "-" * _visible_len(f"{username}@{hostname}")
 
-    # Info lines with colors
+    # Info lines with colors and custom separator
     info_lines: list[str] = []
     for label, value in display_items:
         line = (
-            f"{colors['GREEN']}{label}{colors['RESET']}:"
-            f" {colors['WHITE']}{value}{colors['RESET']}"
+            f"{colors['GREEN']}{label}{colors['RESET']}{info_separator}"
+            f"{colors['WHITE']}{value}{colors['RESET']}"
         )
         info_lines.append(line)
 

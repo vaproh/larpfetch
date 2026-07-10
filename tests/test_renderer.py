@@ -2,7 +2,7 @@
 
 from collections import OrderedDict
 
-from larpfetch.models import SystemInfo
+from larpfetch.models import DisplayConfig, SystemInfo
 from larpfetch.renderer import _COLOR_VALUES, _get_colors, render
 
 
@@ -208,3 +208,69 @@ class TestLogoOverride:
         # No $N placeholders should remain
         assert "$1" not in result
         assert "$2" not in result
+
+
+class TestDisplayConfig:
+    def test_custom_separator(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", os="Linux")
+        cfg = DisplayConfig(separator=" -> ")
+        result = render(
+            info, info, real_shit=False, appearance={"color": False},
+            display_config=cfg,
+        )
+        assert "OS -> Linux" in result
+        assert "OS: Linux" not in result
+
+    def test_field_filtering(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(
+            username="user", hostname="host", os="Linux", cpu="Intel", kernel="6.8.0",
+        )
+        cfg = DisplayConfig(fields=["os", "cpu"])
+        result = render(
+            info, info, real_shit=False, appearance={"color": False},
+            display_config=cfg,
+        )
+        assert "OS:" in result
+        assert "CPU:" in result
+        assert "Kernel:" not in result
+
+    def test_custom_labels(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", memory="16 GiB")
+        cfg = DisplayConfig(field_labels={"memory": "RAM"})
+        result = render(
+            info, info, real_shit=False, appearance={"color": False},
+            display_config=cfg,
+        )
+        assert "RAM:" in result
+        assert "Memory:" not in result
+
+    def test_hide_unavailable_fields(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", os="Linux", gpu="")
+        cfg = DisplayConfig(
+            fields=["os", "gpu", "username"],
+            hide_unavailable=True,
+        )
+        result = render(
+            info, info, real_shit=False, appearance={"color": False},
+            display_config=cfg,
+        )
+        assert "OS:" in result
+        assert "User:" in result
+        assert "GPU:" not in result
+
+    def test_terminal_width_forces_no_logo(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        info = _make_info(username="user", hostname="host", os="Linux")
+        # Very narrow terminal should hide logo
+        result = render(
+            info, info, real_shit=False,
+            appearance={"color": False},
+            cols=30, display_config=DisplayConfig(),
+        )
+        lines = result.split("\n")
+        # First line should just be header, no logo art
+        assert "user@host" in lines[0]

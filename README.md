@@ -62,9 +62,13 @@ larpfetch --json             # Output as JSON
 larpfetch --shell-info       # Show shell version
 larpfetch --gpu-info         # Show GPU driver details
 larpfetch --disk-info        # Show per-disk breakdown
+larpfetch --minimal          # Show a short field set
+larpfetch --compact          # Show standard fields without the logo
+larpfetch --full             # Show all fields
 larpfetch --real-shit        # Show only real detected values
 larpfetch --list-profiles    # List all available profiles
 larpfetch --show-config      # Show current configuration
+larpfetch --generate-config  # Print a starter config
 ```
 
 ### Override any field
@@ -129,6 +133,14 @@ color = true
 show_authenticity = true
 easter_eggs = true
 small = true                          # Always use small ASCII art
+
+[display]
+fields = ["os", "kernel", "cpu", "memory"]
+separator = " -> "
+hide_unavailable = true
+
+[display.labels]
+memory = "RAM"
 ```
 
 ### Platform-specific config locations

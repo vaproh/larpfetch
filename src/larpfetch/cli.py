@@ -12,10 +12,12 @@ from larpfetch.collectors.common import collect_all
 from larpfetch.config import (
     get_appearance,
     get_default_profile,
+    get_display_config,
     get_named_profiles,
     load_config,
 )
 from larpfetch.logos import LOGO_ART
+from larpfetch.models import DENSITY_PRESETS
 from larpfetch.profiles import get_builtin_profiles
 from larpfetch.renderer import render
 from larpfetch.resolver import resolve
@@ -212,7 +214,67 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Show per-disk breakdown",
     )
+    parser.add_argument(
+        "--minimal",
+        action="store_true",
+        help="Show only essential fields (short preset)",
+    )
+    parser.add_argument(
+        "--compact",
+        action="store_true",
+        help="Show standard fields without logo",
+    )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Show all available fields (default behavior)",
+    )
+    parser.add_argument(
+        "--generate-config",
+        action="store_true",
+        help="Print a starter config file to stdout",
+    )
     return parser
+
+
+_GENERATE_CONFIG_TEMPLATE = """# larpfetch configuration
+# Place this file at ~/.config/larpfetch/config.toml (Linux),
+# ~/Library/Application Support/larpfetch/config.toml (macOS),
+# or %APPDATA%\\larpfetch\\config.toml (Windows).
+
+[default]
+# Default fallback values for any field
+# os = "Gentoo"
+# kernel = "6.8.0-custom"
+
+# [profiles.NAME]
+# Define named profiles referenced via --profile NAME
+# [profiles.templeos]
+# os = "TempleOS"
+# kernel = "4.14.0-temple"
+# shell = "HolyC"
+
+[appearance]
+# General display settings
+# color = true       # Force color output
+# show_authenticity = false
+# easter_eggs = false
+# small = false
+
+[display]
+# Configure which fields appear and how they're formatted.
+# Uncomment to customize:
+
+# fields = ["os", "kernel", "uptime", "shell", "cpu", "gpu", "memory"]
+
+# [display.labels]
+# Custom labels for fields
+# memory = "RAM"
+# packages = "Pkgs"
+
+# separator = ": "
+# hide_unavailable = false
+"""
 
 
 def main(argv: Sequence[str] | None = None) -> None:
@@ -249,6 +311,11 @@ def main(argv: Sequence[str] | None = None) -> None:
     # --show-config
     if args.show_config:
         _show_config(config)
+        return
+
+    # --generate-config
+    if args.generate_config:
+        print(_GENERATE_CONFIG_TEMPLATE)
         return
 
     # Collect real system info
@@ -298,6 +365,15 @@ def main(argv: Sequence[str] | None = None) -> None:
         appearance = dict(appearance)
         appearance["pipe"] = True
 
+    # Build display config: start from config, then apply density presets
+    display_config = get_display_config(config)
+    if args.minimal:
+        display_config.fields = DENSITY_PRESETS["minimal"]
+    elif args.compact:
+        display_config.fields = DENSITY_PRESETS["compact"]
+    elif args.full:
+        display_config.fields = None
+
     # --json output
     if args.json:
         data = dict(resolved.to_dict())
@@ -315,6 +391,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         small=args.small,
         logo_name=args.logo,
         cols=args.cols,
+        display_config=display_config,
     )
     print(output)
 
