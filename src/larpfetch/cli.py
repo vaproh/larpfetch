@@ -268,11 +268,6 @@ def main(argv: Sequence[str] | None = None) -> None:
         real_shit=args.real_shit,
     )
 
-    # Pipe mode: suppress logo when stdout is not a TTY
-    if not sys.stdout.isatty():
-        appearance = dict(appearance)
-        appearance["pipe"] = True
-
     # Render
     output = render(
         resolved,

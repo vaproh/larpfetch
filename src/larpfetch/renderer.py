@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import re
-import sys
 from typing import Any
 
 from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
@@ -47,8 +46,6 @@ def _should_color(force_color: bool | None = None) -> bool:
         return False
     if force_color is not None:
         return force_color
-    if not sys.stdout.isatty():
-        return False
     return True
 
 
@@ -153,7 +150,6 @@ def render(
     use_color = _should_color(force_color)
     show_auth = appearance.get("show_authenticity", True)
     easter_eggs = appearance.get("easter_eggs", True)
-    pipe = appearance.get("pipe", False)
 
     colors = _get_colors(use_color)
 
@@ -164,11 +160,6 @@ def render(
     logo_raw, logo_colors = _resolve_logo(
         info, real, real_shit, use_color, small=small, logo_name=logo_name,
     )
-
-    # Pipe mode: no logo
-    if pipe:
-        logo_raw = [""]
-        logo_colors = []
 
     logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)

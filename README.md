@@ -211,7 +211,7 @@ just all        # format + lint + test
 
 ## Roadmap
 
-- **v1.1**: `--logo`, `--list-logos`, pipe mode, `--cols` ✨
+- **v1.1**: `--logo`, `--list-logos`, `--cols`, `--distro`, `--small` ✨
 - **v1.2**: JSON output, package count detection, GPU/disk details
 - **v1.3**: More profiles, compact mode
 - **v2.0**: Plugins, custom themes, export profiles

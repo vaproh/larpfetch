@@ -10928,4 +10928,7 @@ def get_logo_height(logo: List[str]) -> int:
 
 
 def get_logo_width(logo: List[str]) -> int:
-    return max(len(line) for line in logo) if logo else 0
+    import re as _re
+    def _vl(t: str) -> int:
+        return len(_re.sub(r"\x1b\[[0-9;]*m", "", t))
+    return max(_vl(line) for line in logo) if logo else 0
