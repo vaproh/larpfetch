@@ -74,6 +74,8 @@ This invariant requires explicit automated tests (see `tests/test_integration.py
 
 `tests/` mirrors this layout one file per module.
 
+See `docs/architecture.md` for the data-flow diagram, resolution algorithm, and security model.
+
 ## Conventions
 
 - Python 3.11+, `src/` layout, `pyproject.toml` + `uv`.

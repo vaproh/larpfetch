@@ -291,6 +291,7 @@ larpfetch --inspect-profile myrig.toml          # see what a profile contains
 ## Resources
 
 - [Configuration docs](docs/CONFIG.md) — full config reference
+- [Architecture](docs/architecture.md) — module map and data flow
 - [Changelog](CHANGELOG.md) — version history
 - [Roadmap](ROADMAP.md) — planned features
 
