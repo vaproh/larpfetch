@@ -66,52 +66,20 @@ publish-dry: build
 publish: build
 	uv publish
 
-# Install locally
-install:
-	uv sync --frozen
-
-# Run larpfetch
-run:
-	uv run larpfetch
-
-# Run larpfetch with args
-run-args *args:
-	uv run larpfetch {{ args }}
-
-# Run all profiles
-run-all:
-	@for profile in nasa abomination hacker macbook server retro gamer minimal templeos haiku; do \
-		echo "--- $profile ---"; \
-		uv run larpfetch -p $profile --no-color; \
-		echo; \
-	done
-
-# Typecheck (if using mypy/pyright)
-typecheck:
-	uv run pyright src/ || echo "pyright not installed, skipping"
-
-# Show package version
+# Current version (reads pyproject.toml)
 version:
 	@uv run python -c "from larpfetch import __version__; print(__version__)"
 
-# Bump version in pyproject.toml
-bump version:
-	sed -i 's/^version = ".*"/version = "{{ version }}"/' pyproject.toml
-	@echo "Version bumped to {{ version }}"
+# Extract a version's changelog section from CHANGELOG.md
+# Usage: just changelog-notes 1.4.0
+changelog-notes version:
+	@sed -n '/^## v{{ version }}/,/^## v/p' CHANGELOG.md | sed '1d;$d' | sed '/^$$/d'
 
-# Tag current commit
-tag version:
-	git tag -a v{{ version }} -m "v{{ version }}"
-	@echo "Tagged v{{ version }}"
+# Create only the GitHub release for the current version.
+# Reads the summary line + section from CHANGELOG.md automatically.
+gh-release:
+	@bash scripts/release.sh gh-release
 
-# Check for outdated deps
-outdated:
-	uv pip list --outdated
-
-# Verify all profiles work
-verify-profiles:
-	@echo "Testing all profiles..."
-	@for profile in nasa abomination hacker macbook server retro gamer minimal templeos haiku; do \
-		uv run larpfetch -p $profile --no-color > /dev/null 2>&1 && echo "  ✓ $profile" || echo "  ✗ $profile"; \
-	done
-	@echo "Done."
+# Full release: tag + push, publish to PyPI, create the GitHub release.
+release:
+	@bash scripts/release.sh

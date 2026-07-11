@@ -2,6 +2,8 @@
 
 ## v1.4.0
 
+Reality vs Delusion: provenance, diff, sources, and shareable profiles.
+
 - `--diff-real`: show only fields where the displayed identity differs from real detection
 - `--show-sources`: annotate each displayed value with its origin (real/default/profile/cli)
 - `--json --with-sources`: per-field provenance (value, source, real_value) in JSON

@@ -149,14 +149,19 @@ git tag vX.Y.Z && git push origin main && git push origin vX.Y.Z
 export $(grep -v '^#' .env | xargs) && just publish
 
 # 3. Publish the GitHub release for the same tag
-gh release create vX.Y.Z --title "vX.Y.Z: <short title>" --notes "$(cat <<'EOF'
-<release notes>
-EOF
-)"
+just gh-release
+
+# Or do all three steps in one:
+just release
 
 # Dry run of the PyPI publish:
 export $(grep -v '^#' .env | xargs) && just publish-dry
 ```
+
+`just gh-release` and `just release` read the version from `pyproject.toml` and
+build the GitHub release title/notes from `CHANGELOG.md` automatically (the
+first line under each `## vX.Y.Z` heading is the title summary; the rest
+is the notes body).
 
 The GitHub release title and notes should summarize the new features for that version. Do not overengineer this. It is a fetch tool that lies.
 
