@@ -53,8 +53,6 @@ def _fmt_battery(percent: float, power_plugged: bool | None, secsleft: float) ->
     if power_plugged:
         if percent >= 100:
             return f"{base} (full)"
-        if secsleft == -1:  # psutil.POWER_TIME_UNLIMITED
-            return f"{base} (charging)"
         return f"{base} (charging)"
     # Discharging
     if secsleft and secsleft > 0:
