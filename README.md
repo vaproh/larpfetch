@@ -16,7 +16,7 @@
 
 | | |
 |---|---|
-| A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 13 built-in LARP profiles. | <img src="assets/larp-meme.gif" width="300" alt="There's no limit to the LARP"> |
+| A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 13 built-in LARP profiles. | <img src="assets/larp-meme.gif" width="250" alt="There's no limit to the LARP"> |
 
 ## Demo
 
