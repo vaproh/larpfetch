@@ -276,6 +276,69 @@ def _detect_compositor() -> str:
     return ""
 
 
+def _read_sysfs(path: str) -> str:
+    """Read a sysfs file, returning stripped content or "" on any failure."""
+    try:
+        with open(path) as f:
+            return f.read().strip()
+    except OSError:
+        return ""
+
+
+def _detect_windows_field(class_name: str, prop: str) -> str:
+    """Query a WMI class property via PowerShell (best-effort)."""
+    try:
+        result = subprocess.run(
+            ["powershell", "-NoProfile", "-Command", f"(Get-CimInstance {class_name}).{prop}"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    except Exception:
+        pass
+    return ""
+
+
+def _detect_device_model() -> str:
+    """Best-effort device/model name."""
+    if sys.platform == "linux":
+        name = _read_sysfs("/sys/devices/virtual/dmi/id/product_name")
+        if not name:
+            name = _read_sysfs("/sys/devices/virtual/dmi/id/product_version")
+        return name
+    if sys.platform == "darwin":
+        try:
+            result = subprocess.run(
+                ["sysctl", "-n", "hw.model"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if result.returncode == 0:
+                return result.stdout.strip()
+        except Exception:
+            pass
+        return ""
+    if sys.platform == "win32":
+        return _detect_windows_field("Win32_ComputerSystem", "Model")
+    return ""
+
+
+def _detect_motherboard() -> str:
+    """Best-effort motherboard model (vendor + product)."""
+    if sys.platform == "linux":
+        vendor = _read_sysfs("/sys/devices/virtual/dmi/id/board_vendor")
+        name = _read_sysfs("/sys/devices/virtual/dmi/id/board_name")
+        if vendor and name:
+            return f"{vendor} {name}"
+        return name or vendor
+    if sys.platform == "win32":
+        return _detect_windows_field("Win32_BaseBoard", "Product")
+    return ""
+
+
 def collect_common(disk_info: bool = False) -> SystemInfo:
     """Collect information common across all platforms."""
     info = SystemInfo(fields=OrderedDict())
@@ -351,6 +414,20 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
     # CPU model
     try:
         info.set("cpu", _detect_cpu())
+    except Exception:
+        pass
+
+    # Device model and motherboard
+    try:
+        device = _detect_device_model()
+        if device:
+            info.set("device", device)
+    except Exception:
+        pass
+    try:
+        motherboard = _detect_motherboard()
+        if motherboard:
+            info.set("motherboard", motherboard)
     except Exception:
         pass
 

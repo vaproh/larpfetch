@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Device / motherboard model** (v1.5): new `device` and `motherboard` fields.
+  Linux reads DMI `product_name` / `board_vendor`+`board_name`; macOS uses
+  `sysctl hw.model`; Windows queries WMI via PowerShell. All degrade gracefully.
 - **DE / WM / compositor** (v1.5): new `wm` and `compositor` fields. WM detects
   Hyprland/Sway via env and falls back to X11 `_NET_WM_NAME`; compositor reuses
   the WM on Wayland and detects X11 compositors via `_NET_WM_CM_S0`

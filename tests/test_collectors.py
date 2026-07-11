@@ -4,6 +4,8 @@ from unittest.mock import MagicMock, patch
 
 from larpfetch.collectors.common import (
     _detect_compositor,
+    _detect_device_model,
+    _detect_motherboard,
     _detect_resolution,
     _detect_resolution_darwin,
     _detect_resolution_linux,
@@ -326,6 +328,83 @@ class TestWMCompositor:
         monkeypatch.setenv("SWAYSOCK", "/tmp/sway.sock")
         assert collect_common().get("wm") == "Sway"
         assert collect_common().get("compositor") == "Sway"
+
+
+class TestDeviceModel:
+    def test_linux_dmi(self):
+        mock_open = MagicMock()
+        mock_open.return_value.__enter__.return_value.read.return_value = "XPS 13 9310\n"
+
+        import larpfetch.collectors.common as cc
+
+        with patch.object(cc, "sys") as mock_sys, patch("builtins.open", mock_open):
+            mock_sys.platform = "linux"
+            assert _detect_device_model() == "XPS 13 9310"
+
+    def test_darwin_sysctl(self):
+        import larpfetch.collectors.common as cc
+
+        mock_result = MagicMock(returncode=0, stdout="MacBookPro18,3\n")
+        with patch.object(cc, "sys") as mock_sys, patch(
+            "larpfetch.collectors.common.subprocess.run", return_value=mock_result
+        ):
+            mock_sys.platform = "darwin"
+            assert _detect_device_model() == "MacBookPro18,3"
+
+    def test_win32(self):
+        import larpfetch.collectors.common as cc
+
+        mock_result = MagicMock(returncode=0, stdout="Precision 5560\n")
+        with patch.object(cc, "sys") as mock_sys, patch(
+            "larpfetch.collectors.common.subprocess.run", return_value=mock_result
+        ):
+            mock_sys.platform = "win32"
+            assert _detect_device_model() == "Precision 5560"
+
+    def test_empty(self):
+        import larpfetch.collectors.common as cc
+
+        mock_open = MagicMock()
+        mock_open.side_effect = OSError("nope")
+        with patch.object(cc, "sys") as mock_sys, patch("builtins.open", mock_open):
+            mock_sys.platform = "linux"
+            assert _detect_device_model() == ""
+
+    def test_motherboard_linux(self):
+        import larpfetch.collectors.common as cc
+
+        def fake_open(path, *a, **k):
+            content = ""
+            if "board_vendor" in path:
+                content = "Dell Inc.\n"
+            elif "board_name" in path:
+                content = "0PPRXH\n"
+            m = MagicMock()
+            m.__enter__.return_value.read.return_value = content
+            return m
+
+        with patch.object(cc, "sys") as mock_sys, patch("builtins.open", side_effect=fake_open):
+            mock_sys.platform = "linux"
+            assert _detect_motherboard() == "Dell Inc. 0PPRXH"
+
+    def test_motherboard_empty(self):
+        import larpfetch.collectors.common as cc
+
+        mock_open = MagicMock()
+        mock_open.side_effect = OSError("nope")
+        with patch.object(cc, "sys") as mock_sys, patch("builtins.open", mock_open):
+            mock_sys.platform = "linux"
+            assert _detect_motherboard() == ""
+
+    def test_collect_common_includes_device(self):
+        import larpfetch.collectors.common as cc
+
+        mock_open = MagicMock()
+        mock_open.return_value.__enter__.return_value.read.return_value = "ThinkPad X1\n"
+        with patch.object(cc, "sys") as mock_sys, patch("builtins.open", mock_open):
+            mock_sys.platform = "linux"
+            info = collect_common()
+            assert info.get("device") == "ThinkPad X1"
 
 
 class TestCollectPlatform:

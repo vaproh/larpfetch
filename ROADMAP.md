@@ -55,7 +55,7 @@ Cover the most useful missing real-system fields.
 - Display resolution and refresh rate ✅
 - Desktop environment / window manager / compositor ✅
 - Terminal emulator detection ✅
-- Device model and motherboard model
+- Device model and motherboard model ✅
 - Better multi-GPU handling (integrated + dedicated + eGPU)
 - Better multi-disk handling (per-disk breakdown, filter virtual mounts)
 - `--disk-info all` / `--disk-info physical`
