@@ -1,6 +1,9 @@
 """Tests for collector modules."""
 
+from collections import namedtuple
 from unittest.mock import MagicMock, patch
+
+import psutil
 
 from larpfetch.collectors.common import (
     _detect_compositor,
@@ -553,11 +556,33 @@ class TestCollectAll:
         # Should just be "bash", no version appended
         assert shell == "bash" or not shell.endswith(")")
 
-    def test_disk_info_adds_detail(self):
-        info = collect_all(disk_info=True)
-        # Should still have disk
-        assert info.get("disk") != ""
-        assert "/" in info.get("disk")
+    def test_disk_info_adds_detail(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+
+        def fake_partitions(all=False):  # noqa: A002
+            parts = [DiskPart("/dev/sda1", "/", "ext4", "rw")]
+            if all:
+                parts.append(DiskPart("tmpfs", "/tmp", "tmpfs", "rw"))
+            return parts
+
+        monkeypatch.setattr(psutil, "disk_partitions", fake_partitions)
+        info = collect_all(disk_mode="physical")
+        assert info.get("disk_detail") != ""
+        assert "/" in info.get("disk_detail")
+        assert "/tmp" not in info.get("disk_detail")  # tmpfs filtered out
+
+    def test_disk_info_all_includes_virtual(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+
+        def fake_partitions(all=False):  # noqa: A002
+            parts = [DiskPart("/dev/sda1", "/", "ext4", "rw")]
+            if all:
+                parts.append(DiskPart("tmpfs", "/tmp", "tmpfs", "rw"))
+            return parts
+
+        monkeypatch.setattr(psutil, "disk_partitions", fake_partitions)
+        info = collect_all(disk_mode="all")
+        assert "/tmp" in info.get("disk_detail")  # virtual mounts included
 
     def test_gpu_info_flag_passed(self):
         # smoke test: no crash

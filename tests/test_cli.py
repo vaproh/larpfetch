@@ -106,7 +106,17 @@ class TestBuildParser:
     def test_disk_info_flag(self):
         parser = build_parser()
         args = parser.parse_args(["--disk-info"])
-        assert args.disk_info is True
+        assert args.disk_info == "physical"
+
+    def test_disk_info_all_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--disk-info", "all"])
+        assert args.disk_info == "all"
+
+    def test_disk_info_physical_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--disk-info", "physical"])
+        assert args.disk_info == "physical"
 
     def test_minimal_flag(self):
         parser = build_parser()

@@ -47,7 +47,7 @@ Strengthen what makes larpfetch unique.
 - **Profile security model** — shareable profiles are data-only; no arbitrary command execution ✅
 - **Config validation** — `--check-config` validates TOML syntax, unknown fields, and value types ✅
 
-## v1.5 — Daily-Driver System Information
+## v1.5 — Daily-Driver System Information — Shipped
 
 Cover the most useful missing real-system fields.
 
@@ -57,8 +57,8 @@ Cover the most useful missing real-system fields.
 - Terminal emulator detection ✅
 - Device model and motherboard model ✅
 - Better multi-GPU handling (integrated + dedicated + eGPU) ✅
-- Better multi-disk handling (per-disk breakdown, filter virtual mounts)
-- `--disk-info all` / `--disk-info physical`
+- Better multi-disk handling (per-disk breakdown, filter virtual mounts) ✅
+- `--disk-info all` / `--disk-info physical` ✅
 
 ## v1.6 — Themes and Visual Polish
 

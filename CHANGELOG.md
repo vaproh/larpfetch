@@ -1,26 +1,32 @@
 # Changelog
 
-## Unreleased
+## v1.5.0
 
-- **Multi-GPU handling** (v1.5): GPU detection now lists every graphics
+Daily-driver system information: battery state, display resolution, terminal/WM/compositor, device & motherboard model, multi-GPU, and multi-disk modes.
+
+- **Multi-disk + `--disk-info` modes**: `--disk-info` now takes an
+  optional mode — `physical` (default: real disks only) or `all` (also lists
+  virtual mounts like tmpfs/proc). Virtual filesystems are filtered out of
+  `physical` mode. `--disk-info` with no argument defaults to `physical`.
+- **Multi-GPU handling**: GPU detection now lists every graphics
   controller (integrated + dedicated + eGPU) joined with ` | ` instead of
   stopping at the first match. `--gpu-info` still appends driver details.
-- **Device / motherboard model** (v1.5): new `device` and `motherboard` fields.
+- **Device / motherboard model**: new `device` and `motherboard` fields.
   Linux reads DMI `product_name` / `board_vendor`+`board_name`; macOS uses
   `sysctl hw.model`; Windows queries WMI via PowerShell. All degrade gracefully.
-- **DE / WM / compositor** (v1.5): new `wm` and `compositor` fields. WM detects
+- **DE / WM / compositor**: new `wm` and `compositor` fields. WM detects
   Hyprland/Sway via env and falls back to X11 `_NET_WM_NAME`; compositor reuses
   the WM on Wayland and detects X11 compositors via `_NET_WM_CM_S0`
   (`picom`/`compton`/`xcompmgr`, else `active`). All degrade gracefully.
-- **Terminal emulator detection** (v1.5): a new `terminal` field reports the
+- **Terminal emulator detection**: a new `terminal` field reports the
   emulator from `TERM_PROGRAM` (e.g. `iTerm`, `WezTerm`), `WT_SESSION`
   (`Windows Terminal`), `TERMINAL`, `COLORTERM`, or `TERM`; degrades gracefully.
-- **Display resolution detection** (v1.5): a new `resolution` field shows the
+- **Display resolution detection**: a new `resolution` field shows the
   primary display resolution, with refresh rate where available
   (`1920x1080 @ 60Hz`). Best-effort per platform — `xrandr` on Linux (with a
   sysfs fallback), `system_profiler` on macOS, `GetSystemMetrics` on Windows —
   and degrades gracefully to an empty value when detection is unavailable.
-- **Battery charging/discharging state** (first v1.5 item): battery now shows
+- **Battery charging/discharging state**: battery now shows
   charge status — e.g. `87% (charging)`, `42% (discharging, 3h 15m left)`,
   `100% (full)`. Detection degrades gracefully when `psutil` is unavailable.
 

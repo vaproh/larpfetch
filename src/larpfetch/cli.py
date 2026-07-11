@@ -284,8 +284,11 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--disk-info",
-        action="store_true",
-        help="Show per-disk breakdown",
+        nargs="?",
+        const="physical",
+        default=None,
+        choices=["all", "physical"],
+        help="Show per-disk breakdown (physical = real disks, all = include virtual mounts)",
     )
     parser.add_argument(
         "--minimal",
@@ -445,7 +448,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     real = collect_all(
         shell_info=args.shell_info,
         gpu_info=args.gpu_info,
-        disk_info=args.disk_info,
+        disk_mode=args.disk_info,
     )
 
     # --export-profile: dump real detected system as a shareable profile

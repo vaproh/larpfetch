@@ -339,8 +339,12 @@ def _detect_motherboard() -> str:
     return ""
 
 
-def collect_common(disk_info: bool = False) -> SystemInfo:
-    """Collect information common across all platforms."""
+def collect_common(disk_mode: str | None = None) -> SystemInfo:
+    """Collect information common across all platforms.
+
+    ``disk_mode`` controls the per-disk breakdown: ``"physical"`` lists only
+    real disks, ``"all"`` includes virtual mounts (tmpfs, proc, etc.).
+    """
     info = SystemInfo(fields=OrderedDict())
 
     # Username
@@ -386,10 +390,11 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
         pass
 
     # Per-disk breakdown
-    if disk_info and psutil is not None:
+    if disk_mode in ("physical", "all") and psutil is not None:
         try:
+            all_mounts = disk_mode == "all"
             parts = []
-            for part in psutil.disk_partitions():
+            for part in psutil.disk_partitions(all=all_mounts):
                 try:
                     usage = psutil.disk_usage(part.mountpoint)
                     parts.append(
@@ -704,10 +709,10 @@ def _collect_windows(
 def collect_all(
     shell_info: bool = False,
     gpu_info: bool = False,
-    disk_info: bool = False,
+    disk_mode: str | None = None,
 ) -> SystemInfo:
     """Collect all available system information."""
-    info = collect_common(disk_info=disk_info)
+    info = collect_common(disk_mode=disk_mode)
     platform_info = collect_platform(shell_info=shell_info, gpu_info=gpu_info)
     info.update_from(platform_info.to_dict())
 

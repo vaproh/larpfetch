@@ -66,7 +66,8 @@ larpfetch --diff-real        # Show only what differs from reality
 larpfetch --show-sources     # Show where each value came from
 larpfetch --shell-info       # Show shell version
 larpfetch --gpu-info         # Show GPU driver details
-larpfetch --disk-info        # Show per-disk breakdown
+larpfetch --disk-info        # Show per-disk breakdown (physical disks)
+larpfetch --disk-info all     # Include virtual mounts (tmpfs, proc, …)
 larpfetch --minimal          # Show a short field set
 larpfetch --compact          # Show standard fields without the logo
 larpfetch --full             # Show all fields
@@ -262,7 +263,8 @@ larpfetch --diff-real                  # Show only fields that differ from real
 larpfetch --show-sources               # Show where each value came from
 larpfetch --shell-info                 # Show shell version
 larpfetch --gpu-info                   # Show GPU driver details
-larpfetch --disk-info                  # Show per-disk breakdown
+larpfetch --disk-info                  # Show per-disk breakdown (physical)
+larpfetch --disk-info all              # Include virtual mounts
 larpfetch --minimal                    # Short field preset
 larpfetch --compact                    # Standard fields, no logo
 larpfetch --full                       # All available fields
