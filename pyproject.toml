@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "larpfetch"
-version = "1.5.0"
+version = "1.5.1"
 description = "LARP as any distro, hardware, or machine you want. Because reality is optional until you pass --real-shit."
 readme = "README.md"
 license = "MIT"
