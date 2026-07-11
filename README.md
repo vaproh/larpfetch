@@ -102,6 +102,9 @@ Custom fields are supported. Unknown fields display with auto-formatted labels.
 | `minimal` | Alpine Linux | 512 MiB, ash shell |
 | `templeos` | TempleOS | HolyC, 640x480 16-color |
 | `haiku` | Haiku R1/beta4 | Haiku Desktop |
+| `steamdeck` | SteamOS 3.6 | AMD Custom Zen 2, RDNA 2 |
+| `ghostbsd` | GhostBSD 24.04 | Intel Core i7, UHD Graphics 770 |
+| `android` | Android 14 | Snapdragon 8 Gen 3, Adreno 750 |
 
 User-defined profiles in your config file override built-in ones with the same name.
 
@@ -324,7 +327,7 @@ just check      # lint + test
 just all        # format + lint + test
 ```
 
-350 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
+361 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
 > **Maintenance:** This project is 100% made by autonomous coding agents — developed, tested, and released without any human coding. The authoritative operating manual for that process lives in [AGENTS.md](AGENTS.md).
 
@@ -336,7 +339,7 @@ just all        # format + lint + test
 | **v1.2** | JSON output, package count, shell/GPU/disk details ✨ |
 | **v1.3** | Daily-driver customization — declarative display, density presets, terminal responsiveness ✨ |
 | **v1.4** | Reality vs delusion — `--diff-real`, `--show-sources`, shareable profiles ✨ |
-| **v1.5** | Daily-driver system info — battery state, resolution, terminal/WM/compositor, device & motherboard, multi-GPU, multi-disk ✅ |
+| **v1.5** | Daily-driver system info — battery state, resolution, terminal/WM/compositor, device & motherboard, multi-GPU, multi-disk ✅ (v1.5.1: `--disk-info` defaults to `$HOME` disk, takes a PATH, configurable) |
 | **v1.6** | Themes and visual polish — catppuccin, dracula, nord, gruvbox |
 | **v1.7** | Diagnostics — `--explain`, `--diagnose`, `--timings`, shell completions |
 | **v2.0** | Stability — stable JSON/config schemas, cross-platform CI, performance targets |
