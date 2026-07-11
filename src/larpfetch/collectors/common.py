@@ -5,10 +5,13 @@ from __future__ import annotations
 import getpass
 import os
 import platform
+import re
 import socket
 import subprocess
+import sys
 import time
 from collections import OrderedDict
+from pathlib import Path
 
 try:
     import psutil
@@ -64,6 +67,113 @@ def _fmt_battery(percent: float, power_plugged: bool | None, secsleft: float) ->
             left = f"{mins}m"
         return f"{base} (discharging, {left} left)"
     return f"{base} (discharging)"
+
+
+def _detect_resolution() -> str:
+    """Best-effort primary display resolution, optionally with refresh rate.
+
+    Returns strings like ``1920x1080`` or ``1920x1080 @ 60Hz``. Empty on
+    failure. Detection is per-platform and degrades gracefully.
+    """
+    if sys.platform == "darwin":
+        return _detect_resolution_darwin()
+    if sys.platform == "win32":
+        return _detect_resolution_windows()
+    return _detect_resolution_linux()
+
+
+def _parse_xrandr(output: str) -> str:
+    """Parse ``xrandr`` output for the current primary resolution + refresh."""
+    current: tuple[int, int, float | None] | None = None
+    for line in output.splitlines():
+        line = line.strip()
+        if "*" not in line and "+" not in line:
+            continue
+        mode = re.search(r"(\d+)x(\d+)\s+.*?(\d+(?:\.\d+)?)\*?\+?", line)
+        if not mode:
+            mode = re.search(r"(\d+)x(\d+)", line)
+            if not mode:
+                continue
+            current = (int(mode.group(1)), int(mode.group(2)), None)
+            continue
+        refresh = float(mode.group(3)) if mode.group(3) else None
+        current = (int(mode.group(1)), int(mode.group(2)), refresh)
+        if "*" in line:
+            break
+    if not current:
+        return ""
+    w, h, refresh = current
+    if refresh:
+        return f"{w}x{h} @ {refresh:.0f}Hz"
+    return f"{w}x{h}"
+
+
+def _detect_resolution_linux() -> str:
+    """Linux: prefer ``xrandr``; fall back to a sysfs mode."""
+    try:
+        result = subprocess.run(
+            ["xrandr"],
+            capture_output=True,
+            text=True,
+            timeout=3,
+        )
+        if result.returncode == 0:
+            parsed = _parse_xrandr(result.stdout)
+            if parsed:
+                return parsed
+    except Exception:
+        pass
+
+    try:
+        card_dirs = sorted(Path("/sys/class/drm").glob("card*-*"))
+        for card in card_dirs:
+            modes = card / "modes"
+            if modes.is_file():
+                first = modes.read_text().splitlines()
+                if first:
+                    return first[0].strip()
+    except Exception:
+        pass
+
+    return ""
+
+
+def _detect_resolution_darwin() -> str:
+    """macOS: parse ``system_profiler`` display resolution."""
+    try:
+        result = subprocess.run(
+            ["system_profiler", "SPDisplaysDataType"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode != 0:
+            return ""
+        match = re.search(r"Resolution:\s*(\d+)\s*x\s*(\d+)", result.stdout)
+        if match:
+            return f"{match.group(1)}x{match.group(2)}"
+    except Exception:
+        pass
+    return ""
+
+
+def _detect_resolution_windows() -> str:
+    """Windows: primary resolution via ``GetSystemMetrics``.
+
+    Refresh rate is not reliably available without display-driver calls, so
+    it is omitted on Windows (graceful degradation).
+    """
+    try:
+        import ctypes
+
+        user32 = ctypes.windll.user32  # type: ignore[attr-defined]
+        w = user32.GetSystemMetrics(0)
+        h = user32.GetSystemMetrics(1)
+        if w and h:
+            return f"{w}x{h}"
+    except Exception:
+        pass
+    return ""
 
 
 def collect_common(disk_info: bool = False) -> SystemInfo:
@@ -141,6 +251,14 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
     # CPU model
     try:
         info.set("cpu", _detect_cpu())
+    except Exception:
+        pass
+
+    # Display resolution (and refresh where available)
+    try:
+        resolution = _detect_resolution()
+        if resolution:
+            info.set("resolution", resolution)
     except Exception:
         pass
 

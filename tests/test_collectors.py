@@ -3,9 +3,14 @@
 from unittest.mock import MagicMock, patch
 
 from larpfetch.collectors.common import (
+    _detect_resolution,
+    _detect_resolution_darwin,
+    _detect_resolution_linux,
+    _detect_resolution_windows,
     _fmt_battery,
     _fmt_bytes,
     _fmt_uptime,
+    _parse_xrandr,
     collect_all,
     collect_common,
     collect_platform,
@@ -125,6 +130,82 @@ class TestCollectCommon:
         disk = info.get("disk")
         assert disk != ""
         assert "/" in disk
+
+
+class TestResolution:
+    def test_parse_xrandr_with_refresh(self):
+        out = (
+            "Screen 0: minimum 8 x 8, current 1920 x 1080, maximum 16384 x 16384\n"
+            "DP-0 connected primary 1920x1080+0+0 (normal left inverted right x axis) "
+            "531mm x 299mm\n"
+            "   1920x1080     60.00*+  59.94\n"
+            "   1680x1050     59.95\n"
+        )
+        assert _parse_xrandr(out) == "1920x1080 @ 60Hz"
+
+    def test_parse_xrandr_no_refresh(self):
+        out = (
+            "DP-0 connected primary 1920x1080+0+0\n"
+            "   1920x1080\n"
+        )
+        assert _parse_xrandr(out) == "1920x1080"
+
+    def test_parse_xrandr_empty(self):
+        assert _parse_xrandr("") == ""
+
+    @patch("larpfetch.collectors.common.subprocess.run")
+    def test_detect_linux_via_xrandr(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout=(
+                "Screen 0: minimum 320 x 200, current 2560 x 1440\n"
+                "DP-1 connected 2560x1440+0+0\n"
+                "   2560x1440     144.00*+\n"
+            ),
+        )
+        assert _detect_resolution_linux() == "2560x1440 @ 144Hz"
+
+    @patch("larpfetch.collectors.common.subprocess.run", side_effect=FileNotFoundError)
+    def test_detect_linux_xrandr_missing(self, _mock_run):
+        # xrandr unavailable -> degrade gracefully (no exception, returns str)
+        assert isinstance(_detect_resolution_linux(), str)
+
+    @patch("larpfetch.collectors.common.subprocess.run")
+    def test_detect_darwin(self, mock_run):
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout="Graphics/Displays:\n\nDisplay:\n  Resolution: 3024 x 1964\n",
+        )
+        assert _detect_resolution_darwin() == "3024x1964"
+
+    @patch("larpfetch.collectors.common.subprocess.run")
+    def test_detect_darwin_failure(self, mock_run):
+        mock_run.return_value = MagicMock(returncode=1, stdout="")
+        assert _detect_resolution_darwin() == ""
+
+    def test_detect_windows(self):
+        mock_windll = MagicMock()
+        mock_windll.user32.GetSystemMetrics.side_effect = [1920, 1080]
+        with patch("ctypes.windll", mock_windll, create=True):
+            assert _detect_resolution_windows() == "1920x1080"
+
+    def test_detect_windows_failure(self):
+        mock_windll = MagicMock()
+        mock_windll.user32.GetSystemMetrics.side_effect = Exception("nope")
+        with patch("ctypes.windll", mock_windll, create=True):
+            assert _detect_resolution_windows() == ""
+
+    @patch("larpfetch.collectors.common.sys.platform", "linux")
+    @patch("larpfetch.collectors.common._detect_resolution_linux", return_value="1920x1080 @ 60Hz")
+    def test_detect_resolution_dispatches_linux(self, _mock):
+        assert _detect_resolution() == "1920x1080 @ 60Hz"
+
+    def test_collect_common_includes_resolution(self, monkeypatch):
+        monkeypatch.setattr(
+            "larpfetch.collectors.common._detect_resolution", lambda: "1920x1080 @ 60Hz"
+        )
+        info = collect_common()
+        assert info.get("resolution") == "1920x1080 @ 60Hz"
 
 
 class TestCollectPlatform:

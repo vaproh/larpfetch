@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **Display resolution detection** (v1.5): a new `resolution` field shows the
+  primary display resolution, with refresh rate where available
+  (`1920x1080 @ 60Hz`). Best-effort per platform — `xrandr` on Linux (with a
+  sysfs fallback), `system_profiler` on macOS, `GetSystemMetrics` on Windows —
+  and degrades gracefully to an empty value when detection is unavailable.
 - **Battery charging/discharging state** (first v1.5 item): battery now shows
   charge status — e.g. `87% (charging)`, `42% (discharging, 3h 15m left)`,
   `100% (full)`. Detection degrades gracefully when `psutil` is unavailable.
