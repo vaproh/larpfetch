@@ -59,10 +59,10 @@ Planned (see Roadmap):
 | v1.2 | JSON, package count, shell/gpu/disk detail | Shipped |
 | v1.3 | Daily-driver customization: display layout, density presets, terminal responsiveness | Shipped |
 | v1.4 | Reality vs Delusion: diff, sources, shareable profiles, `--check-config` | Shipped |
-| v1.5 | More system fields: battery, resolution, DE/WM, terminal, device model | Planned |
+| v1.5 | More system fields: battery, resolution, DE/WM, terminal, device model, multi-GPU/multi-disk, disk-info selection (v1.5.1) | Shipped |
 | v1.6 | Themes and visual polish | Planned |
 | v1.7 | Diagnostics: `--explain`, `--diagnose`, `--timings`, completions | Planned |
-| v1.8 | Deeper platform: privacy, multi-GPU/disk, per-manager counts | Planned |
+| v1.8 | Deeper platform: privacy, per-manager package counts | Planned |
 | v2.0 | Stability: stable JSON/config/profile schemas, migration, CI | Planned |
 
 Full detail: [ROADMAP.md](ROADMAP.md).
