@@ -1,19 +1,8 @@
-<table>
-  <tr>
-    <td valign="top">
-
 # larpfetch
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
 > **100% made by autonomous coding agents** — no human writes code here. See [AGENTS.md](AGENTS.md) for the operating manual.
-
-    </td>
-    <td valign="top">
-      <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="300">
-    </td>
-  </tr>
-</table>
 
 > If you like this project, drop a ⭐ on [GitHub](https://github.com/vaproh/larpfetch) — it helps others find it.
 
@@ -26,6 +15,10 @@
 [![100% Autonomous](https://img.shields.io/badge/100%25%20made%20by-autonomous%20agents-9b59b6?style=flat-square)](AGENTS.md)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 13 built-in LARP profiles.
+
+<p align="center">
+  <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="320">
+</p>
 
 ## Demo
 
