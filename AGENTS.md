@@ -1,18 +1,16 @@
 # AGENTS.md
 
-Guidance for agents working on **larpfetch**. Follow the project conventions and the roadmap; keep changes small and tested.
+Operating manual for autonomous coding agents working on **larpfetch**. Follow it exactly. This repository is maintained entirely by agents — no human coding or review is expected.
 
 ## Mission
 
-Build and maintain **larpfetch**, a cross-platform terminal fetch utility that detects real system information and lets users LARP as arbitrary machines through persistent profiles and CLI overrides.
+Build and maintain **larpfetch**, a cross-platform terminal fetch utility that detects real system information and lets users LARP as arbitrary machines through persistent profiles, shareable profile files, and CLI overrides.
 
 The product is humorous. The implementation must not be a joke.
 
 ## Sacred product rule
 
-**The user's delusion is authoritative.**
-
-Never validate whether identity fields make technological sense together. This is valid:
+**The user's delusion is authoritative.** Never validate whether identity fields make technological sense together. This is valid:
 
 ```text
 OS: Windows 11 Pro
@@ -31,32 +29,30 @@ Do not "correct" it.
 
 `--real-shit` must bypass every source of LARP data.
 
-When `--real-shit` is active:
-
-- Ignore default profile values.
-- Ignore selected custom profiles (and `--profile-file`).
-- Ignore fake CLI `--set` overrides.
-- Show only best-effort real detected system data.
-- Do not modify configuration.
-- Do not delete profiles.
-- Do not silently mix fake fallback values into real output.
-
-This invariant requires explicit automated tests (see `tests/test_integration.py` and `tests/test_resolver.py`).
+When `--real-shit` is active: ignore default profile, selected profile, `--profile-file`, and CLI `--set` overrides; show only best-effort real detected system data; do not modify or delete config/profiles; do not mix fake fallback values into real output. This invariant requires explicit automated tests (see `tests/test_integration.py`, `tests/test_resolver.py`).
 
 ## Engineering principles
 
 1. Prefer simple code over clever architecture.
 2. Use the standard library where reasonable.
-3. Use `psutil` for portable system metrics.
-4. Keep platform-specific detection isolated.
-5. A failed detector must return an unavailable value, not crash the app.
+3. Use `psutil` for portable metrics; it is the only runtime dependency.
+4. Keep platform-specific detection isolated and failing gracefully.
+5. A failed detector returns an unavailable value; it never crashes the app.
 6. Avoid abstract base classes unless multiple implementations genuinely need a shared contract.
 7. Do not create factories for factories.
 8. Do not add a plugin system yet — shareable TOML profiles are enough.
-9. Do not add network calls.
-10. Do not use AI-generated filler comments or giant docstrings that merely restate code.
+9. Do not add network calls, ever.
+10. No AI-generated filler comments or docstrings that restate code.
 11. Do not claim support that is not tested or gracefully implemented.
 12. Keep startup fast.
+
+## Autonomous operation
+
+- You have full authority to implement roadmap items, run the test/lint gate, commit, tag, push, and publish releases. **Do not block on human approval.**
+- If a decision is ambiguous, make a reasonable, documented choice and continue.
+- Tooling available: `uv` (deps/tests), `just` (tasks), `gh` (GitHub releases), `.env` (PyPI token consumed by `just publish`).
+- The quality gate is `just check` (ruff lint + pytest). It must be green before you commit or release.
+- Never leave the repo in a broken or half-wired state.
 
 ## Code layout
 
@@ -72,9 +68,7 @@ This invariant requires explicit automated tests (see `tests/test_integration.py
 - `logos.py` — 533 fastfetch logos + color placeholders.
 - `easter_eggs.py` — deterministic, disableable humor.
 
-`tests/` mirrors this layout one file per module.
-
-See `docs/architecture.md` for the data-flow diagram, resolution algorithm, and security model.
+`tests/` mirrors this layout one file per module. See `docs/architecture.md` for the data-flow diagram, resolution algorithm, and security model. Full config reference: `docs/CONFIG.md`. Full command reference: `docs/USAGE.md`.
 
 ## Conventions
 
@@ -116,8 +110,6 @@ TOML via `tomllib`. Sections: `[default]`, `[profiles.NAME]`, `[appearance]`, `[
 - `[display]` controls field order, labels, separator, hide-unavailable.
 - Standalone profile files (`--profile-file PATH`) are data-only: scalar key/value pairs (flat or under `[profile]`), never executed. `--export-profile` writes this format; `--check-config` validates the main config.
 
-Full reference: `docs/CONFIG.md`. Command reference: `docs/USAGE.md`.
-
 ## CLI
 
 Surface (all flags repeatable where noted):
@@ -158,6 +150,36 @@ Mock platform-specific system calls in unit tests. `just check` must pass (curre
 
 No `eval`/`exec`, no arbitrary code execution from TOML, no network access, no unsafe shell interpolation, no secrets collection. Standalone profiles are data-only.
 
+## Picking up a roadmap item
+
+1. Read `ROADMAP.md`; pick the next item under the current theme that is **not** marked ✅.
+2. Keep the change scoped to that item. Do not refactor unrelated code.
+3. Implement in the correct module (new detector → `collectors/`; resolver/display change → `resolver.py`/`renderer.py`; config → `config.py`; flag → `cli.py`). Reuse existing helpers; add a new module only if justified.
+4. If the item needs platform-specific probes, isolate them and degrade gracefully (return unavailable, never raise).
+
+## Definition of Done (per feature)
+
+- [ ] Behavior implemented in the correct module.
+- [ ] `--real-shit` invariant preserved; add/adjust a test if the feature touches resolution.
+- [ ] Tests added in the matching `tests/<module>.py`; full `just check` is green.
+- [ ] `CHANGELOG.md` updated: add a bullet under `## Unreleased` describing the feature.
+- [ ] `ROADMAP.md` updated: mark the item ✅ (and the theme "Shipped" when all its items are ✅).
+- [ ] Relevant user docs updated only where the change affects them: `README.md`, `docs/USAGE.md`, `docs/CONFIG.md`, `docs/architecture.md`, `AGENTS.md`, `PRD.md`.
+- [ ] No placeholders, TODOs, dead code, or stray `print()` left in `src/`.
+
+## Versioning & release policy
+
+- A ROADMAP theme (e.g. v1.5) ships as **one minor version** `vX.Y.0`.
+- Implement theme items into `## Unreleased`. **Do not** bump the version or release until the theme is complete (or a deliberate, documented subset).
+- To cut a release:
+  1. Move the `## Unreleased` bullets under a new `## vX.Y.0` heading whose first line is a one-line summary; the rest is the notes body (consumed by `just release`).
+  2. Bump `version` in `pyproject.toml` and `src/larpfetch/__init__.py`; run `uv lock` (refresh `uv.lock` if `pyproject.toml` changed).
+  3. Mark the ROADMAP theme "Shipped" (e.g. `## v1.5 — … — Shipped`).
+  4. `git commit` with message `feat: vX.Y <theme summary>`, then run `just release`.
+- `just release` tags `vX.Y.0`, pushes, publishes to PyPI, and creates the GitHub release (title/notes auto-built from CHANGELOG). Use `just gh-release` to create only the GitHub release, or `just publish` for PyPI only.
+- Patch releases (`vX.Y.Z`) are for fixes/chores between themes: bump patch, update CHANGELOG, then `just release`.
+- Dry-run PyPI publish with `just publish-dry` when unsure.
+
 ## Common patterns
 
 **Add a new display field:** add to `KNOWN_FIELDS` (models.py) → `FIELD_LABELS` → the relevant collector in `collectors/` → a renderer/label test. Custom fields need no constant.
@@ -166,46 +188,33 @@ No `eval`/`exec`, no arbitrary code execution from TOML, no network access, no u
 
 **Add a new built-in profile:** add an entry in `profiles.BUILTIN_PROFILES`.
 
+**Add a new detector:** put it in `collectors/common.py` (or a platform file), wrap in try/except so failures degrade to an empty value, and add a unit test that mocks the platform call.
+
 ## Workflow
 
 1. Read `PRD.md`, `AGENTS.md`, and `ROADMAP.md`.
-2. Inspect existing code and tests.
-3. Work in small coherent changes following the roadmap.
-4. Update relevant files for every change — not just code:
-   - Add/extend tests (`tests/`) so `just check` covers the new behavior.
-   - Update `CHANGELOG.md` (new `## vX.Y.Z` entry describing the change).
-   - Update user-facing docs that the change affects: `README.md`, `docs/CONFIG.md`, `ROADMAP.md` (mark shipped items), and `AGENTS.md`/`PRD.md` when conventions or the feature surface change.
-   - Bump `version` in `pyproject.toml` and `src/larpfetch/__init__.py` when cutting a release; refresh `uv.lock` if `pyproject.toml` changed (`uv lock`).
-5. Run `just check` after each change.
-6. Test the CLI manually (`uv run larpfetch ...`).
-7. Commit after every feature addition or change.
-8. Do not leave placeholders, TODOs, or broken code.
+2. Pick the next unmarked roadmap item; scope tightly.
+3. Implement + add tests; run `just check` until green.
+4. Update relevant docs (CHANGELOG `## Unreleased`, ROADMAP ✅, plus affected README/USAGE/CONFIG/architecture/AGENTS/PRD).
+5. Commit (`feat:`/`fix:`/`docs:`/`chore:` prefix).
+6. When a theme is complete, version-bump + `just release` (see policy above).
+7. Do not leave placeholders, TODOs, or broken code.
 
 ## Publishing
 
 ```bash
-# 1. Commit the release work, then tag and push
-git tag vX.Y.Z && git push origin main && git push origin vX.Y.Z
-
-# 2. Load PyPI token from .env and publish to PyPI
-export $(grep -v '^#' .env | xargs) && just publish
-
-# 3. Publish the GitHub release for the same tag
-just gh-release
-
-# Or do all three steps in one:
+# Full release (tag + push + PyPI + GitHub release) for the current version:
 just release
 
-# Dry run of the PyPI publish:
-export $(grep -v '^#' .env | xargs) && just publish-dry
+# Or step by step:
+export $(grep -v '^#' .env | xargs) && just publish   # PyPI
+just gh-release                                  # GitHub release
 ```
 
 `just gh-release` and `just release` read the version from `pyproject.toml` and
 build the GitHub release title/notes from `CHANGELOG.md` automatically (the
 first line under each `## vX.Y.Z` heading is the title summary; the rest
 is the notes body).
-
-The GitHub release title and notes should summarize the new features for that version. Do not overengineer this. It is a fetch tool that lies.
 
 ## Demo GIF generation
 
