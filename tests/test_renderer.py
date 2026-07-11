@@ -3,7 +3,13 @@
 from collections import OrderedDict
 
 from larpfetch.models import DisplayConfig, SystemInfo
-from larpfetch.renderer import _COLOR_VALUES, _get_colors, render
+from larpfetch.renderer import (
+    _COLOR_VALUES,
+    _get_colors,
+    render,
+    render_diff,
+    render_sources,
+)
 
 
 def _make_info(**kwargs: str) -> SystemInfo:
@@ -274,3 +280,64 @@ class TestDisplayConfig:
         lines = result.split("\n")
         # First line should just be header, no logo art
         assert "user@host" in lines[0]
+
+
+class TestRenderDiff:
+    def test_shows_differences(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        real = _make_info(os="Arch Linux", cpu="Intel")
+        resolved = _make_info(os="NASA Linux", cpu="Intel")
+        result = render_diff(resolved, real, appearance={"color": False})
+        assert "OS" in result
+        assert "Arch Linux" in result
+        assert "NASA Linux" in result
+        assert "->" in result
+
+    def test_hides_matching_fields(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        real = _make_info(os="Arch Linux", cpu="Intel")
+        resolved = _make_info(os="NASA Linux", cpu="Intel")
+        result = render_diff(resolved, real, appearance={"color": False})
+        # CPU matches, should not appear
+        assert "CPU" not in result
+
+    def test_no_differences_message(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        real = _make_info(os="Arch Linux")
+        resolved = _make_info(os="Arch Linux")
+        result = render_diff(resolved, real, appearance={"color": False})
+        assert "No differences" in result
+
+    def test_missing_real_shows_none(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        real = _make_info(os="Arch Linux")
+        resolved = _make_info(os="Arch Linux", cpu="Fake CPU")
+        result = render_diff(resolved, real, appearance={"color": False})
+        assert "(none)" in result
+
+
+class TestRenderSources:
+    def test_annotates_sources(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        resolved = _make_info(os="NASA Linux", cpu="Intel")
+        sources = {"os": "profile", "cpu": "real"}
+        result = render_sources(resolved, sources, appearance={"color": False})
+        assert "[profile]" in result
+        assert "[real]" in result
+        assert "OS" in result
+
+    def test_default_source_is_real(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        resolved = _make_info(os="Arch")
+        result = render_sources(resolved, {}, appearance={"color": False})
+        assert "[real]" in result
+
+    def test_respects_display_config(self, monkeypatch):
+        monkeypatch.delenv("NO_COLOR", raising=False)
+        resolved = _make_info(os="Arch", cpu="Intel", kernel="6.8.0")
+        sources = {"os": "profile", "cpu": "real", "kernel": "real"}
+        cfg = DisplayConfig(fields=["os"])
+        result = render_sources(resolved, sources, appearance={"color": False},
+                                display_config=cfg)
+        assert "OS" in result
+        assert "CPU" not in result

@@ -59,6 +59,8 @@ larpfetch -p hacker          # Become a Parrot OS hacker
 larpfetch --distro gentoo    # LARP as a specific distro
 larpfetch --small            # Use small ASCII art
 larpfetch --json             # Output as JSON
+larpfetch --diff-real        # Show only what differs from reality
+larpfetch --show-sources     # Show where each value came from
 larpfetch --shell-info       # Show shell version
 larpfetch --gpu-info         # Show GPU driver details
 larpfetch --disk-info        # Show per-disk breakdown
@@ -199,12 +201,17 @@ By default larpfetch shows your LARP identity. `--real-shit` shows only detected
 
 | Field  | Real (`--real-shit`)     | Delusion (`-p nasa`)        |
 |---------|---------------------------|-----------------------------|
-| OS      | Arch Linux               | NASA Mission Control        |
+| OS      | Arch Linux               | NASA Linux                  |
 | CPU     | Ryzen 7 7840HS          | Quantum Potato 9000        |
 | Memory  | 32 GiB                   | 69 PiB                      |
-| GPU     | Radeon 780M              | RTX 6090 Ti Super Ultra    |
+| GPU     | Radeon 780M              | Classified                 |
 
-`--diff-real` (planned for v1.4) will print exactly these differences inline.
+`--diff-real` prints exactly these differences inline, and `--show-sources` annotates where every value came from:
+
+```bash
+larpfetch -p nasa --diff-real      # only the fields you're lying about
+larpfetch -p nasa --show-sources   # [real] / [default] / [profile] / [cli] per field
+```
 
 ## The Sacred Rule
 
@@ -247,17 +254,38 @@ larpfetch --list-logos                 # List all available logos
 larpfetch --list-logos --search ubuntu # Search logos
 larpfetch --real-shit                  # Real system info only
 larpfetch --json                       # Output as JSON
+larpfetch --json --with-sources        # JSON with per-field provenance
+larpfetch --diff-real                  # Show only fields that differ from real
+larpfetch --show-sources               # Show where each value came from
 larpfetch --shell-info                 # Show shell version
 larpfetch --gpu-info                   # Show GPU driver details
 larpfetch --disk-info                  # Show per-disk breakdown
+larpfetch --minimal                    # Short field preset
+larpfetch --compact                    # Standard fields, no logo
+larpfetch --full                       # All available fields
+larpfetch --export-profile [NAME]      # Export real system as a shareable profile
+larpfetch --profile-file PATH          # Load a standalone profile file
+larpfetch --inspect-profile NAME|PATH  # Inspect a profile or profile file
 larpfetch --list-profiles              # List all profiles
 larpfetch --show-config                # Show current config
+larpfetch --generate-config            # Print a starter config
+larpfetch --check-config               # Validate the config file
 larpfetch --config /path/to/config.toml  # Custom config path
 larpfetch --set key=value              # Override a field (repeatable)
 larpfetch --color                      # Force color output
 larpfetch --no-color                   # Disable color output
 larpfetch --version                    # Show version
 larpfetch --help                       # Show help
+```
+
+## Sharing profiles
+
+Export your real system as a standalone profile, then share the file. Profiles are data-only TOML — loading one never executes code.
+
+```bash
+larpfetch --export-profile myrig > myrig.toml   # capture your real system
+larpfetch --profile-file myrig.toml             # someone else LARPs as your rig
+larpfetch --inspect-profile myrig.toml          # see what a profile contains
 ```
 
 ## Resources
@@ -287,7 +315,7 @@ just check      # lint + test
 just all        # format + lint + test
 ```
 
-207 tests covering: config loading, profile resolution, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
+302 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
 ## Roadmap
 
@@ -295,8 +323,8 @@ just all        # format + lint + test
 |---------|-------|
 | **v1.1** | `--logo`, `--list-logos`, `--cols`, `--distro`, `--small` ✨ |
 | **v1.2** | JSON output, package count, shell/GPU/disk details ✨ |
-| **v1.3** | Daily-driver customization — declarative display, density presets, terminal responsiveness |
-| **v1.4** | Reality vs delusion — `--diff-real`, `--show-sources`, shareable profiles |
+| **v1.3** | Daily-driver customization — declarative display, density presets, terminal responsiveness ✨ |
+| **v1.4** | Reality vs delusion — `--diff-real`, `--show-sources`, shareable profiles ✨ |
 | **v1.5** | More system fields — battery, resolution, DE/WM, terminal, device model |
 | **v1.6** | Themes and visual polish — catppuccin, dracula, nord, gruvbox |
 | **v1.7** | Diagnostics — `--explain`, `--diagnose`, `--timings`, shell completions |

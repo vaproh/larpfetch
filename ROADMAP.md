@@ -32,18 +32,18 @@ Let users control exactly what their fetch looks like.
 
 > Themes (separate from profiles) are deferred to v1.6.
 
-## v1.4 — Reality vs Delusion
+## v1.4 — Reality vs Delusion — Shipped
 
 Strengthen what makes larpfetch unique.
 
-- **`--diff-real`** — show only fields where the displayed identity differs from real detection
-- **`--show-sources`** — inspect where every value came from (detected, config, profile, CLI)
-- **JSON provenance** — `--json --with-sources` exposes value, source, and real_value per field
-- **`--export-profile`** — detect real system and export as a reusable TOML profile
-- **Standalone shareable profile files** — `--profile-file nasa.toml` to load profiles outside main config
-- **Profile inspection** — `--inspect-profile nasa` shows source, fields overridden, logo, theme
-- **Profile security model** — shareable profiles are data-only by default, no arbitrary command execution
-- **Config validation** — `--check-config` validates TOML syntax, unknown fields, invalid colors
+- **`--diff-real`** — show only fields where the displayed identity differs from real detection ✅
+- **`--show-sources`** — inspect where every value came from (detected, config, profile, CLI) ✅
+- **JSON provenance** — `--json --with-sources` exposes value, source, and real_value per field ✅
+- **`--export-profile`** — detect real system and export as a reusable TOML profile ✅
+- **Standalone shareable profile files** — `--profile-file nasa.toml` to load profiles outside main config ✅
+- **Profile inspection** — `--inspect-profile nasa` shows source, fields, and logo ✅
+- **Profile security model** — shareable profiles are data-only; no arbitrary command execution ✅
+- **Config validation** — `--check-config` validates TOML syntax, unknown fields, and value types ✅
 
 ## v1.5 — Daily-Driver System Information
 

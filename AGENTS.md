@@ -76,6 +76,8 @@ Reality mode: `--real-shit > everything else`
 
 Do not accidentally implement custom profiles as total replacements. Missing fields inherit from the default profile, then real values.
 
+The resolver also tracks provenance: `resolve_with_sources` returns each field's origin (`real`, `default`, `profile`, `cli`), which powers `--show-sources`, `--diff-real`, and `--json --with-sources`.
+
 ## Configuration
 
 Use TOML and `tomllib`. Expected sections: `[default]`, `[profiles.NAME]`, `[appearance]`, `[display]`.
@@ -84,11 +86,13 @@ Profiles can include a `logo` field to reference a built-in logo by name or prov
 
 `[display]` controls field order, labels, separator, and whether unavailable values are hidden.
 
+Standalone profile files (`--profile-file PATH`) are data-only: parse with `tomllib`, read only scalar key/value pairs (flat or under `[profile]`), never execute code. `--export-profile` writes this format; `--check-config` validates the main config.
+
 Full config reference: `docs/CONFIG.md`.
 
 ## CLI
 
-Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--shell-info`, `--gpu-info`, `--disk-info`, `--minimal`, `--compact`, `--full`, `--generate-config`, `--version`, `--help`.
+Required surface: `larpfetch`, `-p NAME`, `--profile NAME`, `--real-shit`, `--list-profiles`, `--show-config`, `--config PATH`, `--set key=value`, `--json`, `--with-sources`, `--diff-real`, `--show-sources`, `--shell-info`, `--gpu-info`, `--disk-info`, `--minimal`, `--compact`, `--full`, `--generate-config`, `--export-profile [NAME]`, `--profile-file PATH`, `--inspect-profile NAME|PATH`, `--check-config`, `--version`, `--help`.
 
 `--set` must be repeatable.
 

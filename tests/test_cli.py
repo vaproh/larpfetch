@@ -128,6 +128,51 @@ class TestBuildParser:
         args = parser.parse_args(["--generate-config"])
         assert args.generate_config is True
 
+    def test_diff_real_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--diff-real"])
+        assert args.diff_real is True
+
+    def test_show_sources_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--show-sources"])
+        assert args.show_sources is True
+
+    def test_with_sources_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--with-sources"])
+        assert args.with_sources is True
+
+    def test_export_profile_no_name(self):
+        parser = build_parser()
+        args = parser.parse_args(["--export-profile"])
+        assert args.export_profile == ""
+
+    def test_export_profile_with_name(self):
+        parser = build_parser()
+        args = parser.parse_args(["--export-profile", "myrig"])
+        assert args.export_profile == "myrig"
+
+    def test_export_profile_default_none(self):
+        parser = build_parser()
+        args = parser.parse_args([])
+        assert args.export_profile is None
+
+    def test_profile_file_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--profile-file", "/path/p.toml"])
+        assert args.profile_file == "/path/p.toml"
+
+    def test_inspect_profile_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--inspect-profile", "nasa"])
+        assert args.inspect_profile == "nasa"
+
+    def test_check_config_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--check-config"])
+        assert args.check_config is True
+
 
 class TestMain:
     def test_help_exits_cleanly(self, capsys):
@@ -419,3 +464,161 @@ show_authenticity = true
         main(["--full"])
         captured = capsys.readouterr()
         assert len(captured.out) > 0
+
+    def test_diff_real_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["-p", "nasa", "--diff-real"])
+        captured = capsys.readouterr()
+        assert "NASA Linux" in captured.out
+        assert "->" in captured.out
+
+    def test_diff_real_no_diff_when_real_shit(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["-p", "nasa", "--real-shit", "--diff-real"])
+        captured = capsys.readouterr()
+        assert "No differences" in captured.out
+
+    def test_show_sources_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["-p", "nasa", "--show-sources"])
+        captured = capsys.readouterr()
+        assert "[profile]" in captured.out
+        assert "[real]" in captured.out
+
+    def test_json_with_sources(self, capsys, monkeypatch):
+        import json as _json
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["-p", "nasa", "--json", "--with-sources"])
+        captured = capsys.readouterr()
+        data = _json.loads(captured.out)
+        assert data["os"]["value"] == "NASA Linux"
+        assert data["os"]["source"] == "profile"
+        assert "real_value" in data["os"]
+
+    def test_export_profile_output(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        main(["--export-profile", "myrig"])
+        captured = capsys.readouterr()
+        assert "larpfetch profile" in captured.out
+        assert "myrig" in captured.out
+        assert "os =" in captured.out
+
+    def test_profile_file_loaded(self, capsys, tmp_path, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        pf = tmp_path / "p.toml"
+        pf.write_text('os = "Custom Standalone OS"\n')
+        main(["--profile-file", str(pf), "--no-color"])
+        captured = capsys.readouterr()
+        assert "Custom Standalone OS" in captured.out
+
+    def test_profile_file_missing_errors(self, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--profile-file", "/nonexistent/p.toml"])
+        assert exc_info.value.code == 1
+
+    def test_profile_file_ignored_by_real_shit(self, capsys, tmp_path, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        pf = tmp_path / "p.toml"
+        pf.write_text('os = "Fake Standalone OS"\n')
+        main(["--profile-file", str(pf), "--real-shit"])
+        captured = capsys.readouterr()
+        assert "Fake Standalone OS" not in captured.out
+
+    def test_inspect_profile_builtin(self, capsys, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--inspect-profile", "nasa"])
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "nasa" in captured.out
+        assert "built-in" in captured.out
+
+    def test_inspect_profile_file(self, capsys, tmp_path, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        pf = tmp_path / "p.toml"
+        pf.write_text('os = "Inspected OS"\n')
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--inspect-profile", str(pf)])
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "Inspected OS" in captured.out
+
+    def test_inspect_profile_not_found(self, monkeypatch):
+        from pathlib import Path
+
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--inspect-profile", "nonexistent-profile"])
+        assert exc_info.value.code == 1
+
+    def test_check_config_valid(self, capsys, tmp_path):
+        config_file = tmp_path / "config.toml"
+        config_file.write_text('[default]\nos = "Arch"\n')
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--config", str(config_file), "--check-config"])
+        assert exc_info.value.code == 0
+        captured = capsys.readouterr()
+        assert "OK" in captured.out
+
+    def test_check_config_invalid(self, capsys, tmp_path):
+        config_file = tmp_path / "config.toml"
+        config_file.write_text('[appearance]\ncolor = "yes"\n')
+        with pytest.raises(SystemExit) as exc_info:
+            main(["--config", str(config_file), "--check-config"])
+        assert exc_info.value.code == 1
+        captured = capsys.readouterr()
+        assert "ERROR" in captured.out

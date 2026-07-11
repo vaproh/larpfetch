@@ -115,6 +115,47 @@ Real values only — bypasses everything
 
 CLI density presets (`--minimal`, `--compact`, `--full`) override `[display].fields` for that run.
 
+## Standalone profile files
+
+In addition to profiles defined in the main config, you can load a profile from a separate file with `--profile-file PATH`. This is how profiles are shared.
+
+Two formats are accepted:
+
+```toml
+# Flat format
+os = "NASA Linux"
+cpu = "Quantum Potato 9000"
+logo = "nasa"
+```
+
+```toml
+# Table format
+[profile]
+os = "NASA Linux"
+cpu = "Quantum Potato 9000"
+```
+
+Generate one from your real system with `larpfetch --export-profile [NAME] > myrig.toml`.
+
+**Security:** standalone profiles are data-only. They are parsed with `tomllib` and only scalar key/value pairs are read — loading a profile never executes code, runs commands, or makes network calls. Nested tables other than `[profile]` are ignored.
+
+## Validating your config
+
+Run `larpfetch --check-config` (optionally with `--config PATH`) to validate:
+
+- TOML syntax
+- Unknown top-level sections
+- Unknown `[appearance]` keys and non-boolean values
+- `[display]` field/label/separator types and unknown field references
+
+It exits non-zero if any errors are found.
+
+## Inspecting where values come from
+
+- `larpfetch --show-sources` — annotate each displayed field with `[real]`, `[default]`, `[profile]`, or `[cli]`
+- `larpfetch --diff-real` — show only fields where the displayed identity differs from real detection
+- `larpfetch --json --with-sources` — machine-readable provenance (`value`, `source`, `real_value`)
+
 ## Full example
 
 ```toml

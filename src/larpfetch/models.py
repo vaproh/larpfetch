@@ -134,15 +134,15 @@ class SystemInfo:
             ordered[k] = str(v)
         return cls(fields=ordered)
 
-    def display_items(
+    def display_entries(
         self, display_config: DisplayConfig | None = None
-    ) -> list[tuple[str, str]]:
-        """Return (label, value) pairs in canonical display order.
+    ) -> list[tuple[str, str, str]]:
+        """Return (key, label, value) triples in display order.
 
-        If display_config is provided, its fields, labels, and
-        hide_unavailable settings override the defaults.
+        Applies the same field selection, aliasing, custom labels, and
+        hide_unavailable rules as :meth:`display_items`.
         """
-        items: list[tuple[str, str]] = []
+        entries: list[tuple[str, str, str]] = []
         custom_labels = display_config.field_labels if display_config else None
         hide_unavail = display_config.hide_unavailable if display_config else False
 
@@ -159,19 +159,32 @@ class SystemInfo:
                 value = self.fields[key]
                 if hide_unavail and not value:
                     continue
-                items.append((label_for(key), value))
+                entries.append((key, label_for(key), value))
         else:
             for key in KNOWN_FIELDS:
                 if key in self.fields:
                     value = self.fields[key]
                     if hide_unavail and not value:
                         continue
-                    items.append((label_for(key), value))
+                    entries.append((key, label_for(key), value))
             for key in self.fields:
                 if key not in KNOWN_FIELDS and key not in META_FIELDS:
                     value = self.fields[key]
                     if hide_unavail and not value:
                         continue
-                    items.append((label_for(key), value))
+                    entries.append((key, label_for(key), value))
 
-        return items
+        return entries
+
+    def display_items(
+        self, display_config: DisplayConfig | None = None
+    ) -> list[tuple[str, str]]:
+        """Return (label, value) pairs in canonical display order.
+
+        If display_config is provided, its fields, labels, and
+        hide_unavailable settings override the defaults.
+        """
+        return [
+            (label, value)
+            for _key, label, value in self.display_entries(display_config)
+        ]

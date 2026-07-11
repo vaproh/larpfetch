@@ -10,17 +10,20 @@ from typing import Any, Sequence
 from larpfetch import __version__
 from larpfetch.collectors.common import collect_all
 from larpfetch.config import (
+    export_profile_toml,
     get_appearance,
     get_default_profile,
     get_display_config,
     get_named_profiles,
     load_config,
+    load_profile_file,
+    validate_config,
 )
 from larpfetch.logos import LOGO_ART
 from larpfetch.models import DENSITY_PRESETS
 from larpfetch.profiles import get_builtin_profiles
-from larpfetch.renderer import render
-from larpfetch.resolver import resolve
+from larpfetch.renderer import render, render_diff, render_sources
+from larpfetch.resolver import resolve_with_sources
 
 
 def _parse_sets(sets: list[str]) -> dict[str, str]:
@@ -115,6 +118,76 @@ def _show_config(config: dict) -> None:
             print(f"  {k} = {_fmt_val(v)}")
     else:
         print("  (defaults)")
+
+
+def _inspect_profile(config: dict, target: str) -> int:
+    """Print details about a named profile or a profile file.
+
+    Returns a process exit code.
+    """
+    from pathlib import Path
+
+    fields: dict[str, str]
+    origin: str
+
+    if Path(target).is_file():
+        try:
+            fields = load_profile_file(target)
+        except Exception as e:  # noqa: BLE001 - surface any load error cleanly
+            print(f"Error loading profile file: {e}", file=sys.stderr)
+            return 1
+        origin = f"file: {target}"
+    else:
+        builtins = get_builtin_profiles()
+        user = get_named_profiles(config)
+        if target in user:
+            fields = user[target]
+            origin = "config"
+        elif target in builtins:
+            fields = builtins[target]
+            origin = "built-in"
+        else:
+            avail = ", ".join(sorted(set(builtins) | set(user)))
+            print(
+                f"Error: profile '{target}' not found. Available: {avail}",
+                file=sys.stderr,
+            )
+            return 1
+
+    print(f"Profile: {target} ({origin})")
+    logo = fields.get("logo")
+    if logo:
+        display_logo = logo if "\n" not in logo else "(inline ASCII art)"
+        print(f"Logo: {display_logo}")
+    print(f"Fields ({len([k for k in fields if k != 'logo'])}):")
+    for k in sorted(fields):
+        if k == "logo":
+            continue
+        print(f"  {k} = {fields[k]}")
+    return 0
+
+
+def _check_config(path: str | None) -> int:
+    """Validate the config file and print a report. Returns exit code."""
+    try:
+        errors, warnings = validate_config(path)
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
+
+    for w in warnings:
+        print(f"WARN: {w}")
+    for e in errors:
+        print(f"ERROR: {e}")
+
+    if errors:
+        print(f"\nConfig check: {len(errors)} error(s), {len(warnings)} warning(s)")
+        return 1
+    if warnings:
+        print(f"\nConfig check: OK with {len(warnings)} warning(s)")
+        return 0
+    print("Config check: OK")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -234,6 +307,44 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Print a starter config file to stdout",
     )
+    parser.add_argument(
+        "--diff-real",
+        action="store_true",
+        help="Show only fields where the displayed identity differs from real",
+    )
+    parser.add_argument(
+        "--show-sources",
+        action="store_true",
+        help="Show where every displayed value came from",
+    )
+    parser.add_argument(
+        "--with-sources",
+        action="store_true",
+        help="Include per-field provenance in --json output",
+    )
+    parser.add_argument(
+        "--export-profile",
+        nargs="?",
+        const="",
+        default=None,
+        metavar="NAME",
+        help="Export real detected system as a shareable profile (optional name)",
+    )
+    parser.add_argument(
+        "--profile-file",
+        metavar="PATH",
+        help="Load a standalone profile from a TOML file",
+    )
+    parser.add_argument(
+        "--inspect-profile",
+        metavar="NAME|PATH",
+        help="Inspect a named profile or profile file and exit",
+    )
+    parser.add_argument(
+        "--check-config",
+        action="store_true",
+        help="Validate the config file and exit",
+    )
     return parser
 
 
@@ -322,6 +433,14 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(_GENERATE_CONFIG_TEMPLATE)
         return
 
+    # --check-config
+    if args.check_config:
+        sys.exit(_check_config(args.config))
+
+    # --inspect-profile
+    if args.inspect_profile:
+        sys.exit(_inspect_profile(config, args.inspect_profile))
+
     # Collect real system info
     real = collect_all(
         shell_info=args.shell_info,
@@ -329,19 +448,36 @@ def main(argv: Sequence[str] | None = None) -> None:
         disk_info=args.disk_info,
     )
 
+    # --export-profile: dump real detected system as a shareable profile
+    if args.export_profile is not None:
+        name = args.export_profile or None
+        print(export_profile_toml(dict(real.to_dict()), name), end="")
+        return
+
     # Resolve display identity
     default_profile = get_default_profile(config)
     selected_profile = None
-    if args.profile and not args.real_shit:
-        profiles = _get_all_profiles(config)
-        if args.profile not in profiles:
-            avail = ", ".join(sorted(profiles.keys()))
-            print(
-                f"Error: profile '{args.profile}' not found. Available: {avail}",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        selected_profile = profiles[args.profile]
+    if not args.real_shit:
+        # --profile-file loads a standalone profile
+        if args.profile_file:
+            try:
+                selected_profile = load_profile_file(args.profile_file)
+            except FileNotFoundError as e:
+                print(f"Error: {e}", file=sys.stderr)
+                sys.exit(1)
+            except Exception as e:
+                print(f"Error loading profile file: {e}", file=sys.stderr)
+                sys.exit(1)
+        elif args.profile:
+            profiles = _get_all_profiles(config)
+            if args.profile not in profiles:
+                avail = ", ".join(sorted(profiles.keys()))
+                print(
+                    f"Error: profile '{args.profile}' not found. Available: {avail}",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            selected_profile = profiles[args.profile]
 
     cli_overrides = _parse_sets(args.set)
 
@@ -356,7 +492,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         appearance = dict(appearance)
         appearance["color"] = force_color
 
-    resolved = resolve(
+    resolved, sources = resolve_with_sources(
         real=real,
         default_profile=default_profile,
         selected_profile=selected_profile,
@@ -380,10 +516,29 @@ def main(argv: Sequence[str] | None = None) -> None:
 
     # --json output
     if args.json:
-        data = dict(resolved.to_dict())
-        if args.real_shit:
-            data = dict(real.to_dict())
-        print(json.dumps(data, indent=2))
+        real_dict = dict(real.to_dict())
+        if args.with_sources:
+            data: dict[str, Any] = {}
+            for key, value in resolved.to_dict().items():
+                data[key] = {
+                    "value": value,
+                    "source": sources.get(key, "real"),
+                    "real_value": real_dict.get(key, ""),
+                }
+            print(json.dumps(data, indent=2))
+            return
+        out = real_dict if args.real_shit else dict(resolved.to_dict())
+        print(json.dumps(out, indent=2))
+        return
+
+    # --diff-real: show only differences from real detection
+    if args.diff_real:
+        print(render_diff(resolved, real, appearance, display_config))
+        return
+
+    # --show-sources: annotate each field with its provenance
+    if args.show_sources:
+        print(render_sources(resolved, sources, appearance, display_config))
         return
 
     # Render

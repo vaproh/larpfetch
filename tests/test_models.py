@@ -194,3 +194,35 @@ class TestFieldAliases:
 
     def test_ram_alias(self):
         assert FIELD_ALIASES["ram"] == "memory"
+
+
+class TestDisplayEntries:
+    def test_returns_key_label_value(self):
+        info = SystemInfo(fields=OrderedDict([("os", "Linux"), ("cpu", "Intel")]))
+        entries = info.display_entries()
+        keys = [k for k, _, _ in entries]
+        assert "os" in keys
+        assert "cpu" in keys
+        for key, label, value in entries:
+            if key == "os":
+                assert label == "OS"
+                assert value == "Linux"
+
+    def test_respects_field_filter(self):
+        info = SystemInfo(
+            fields=OrderedDict([("os", "Linux"), ("cpu", "Intel"), ("kernel", "6.8")])
+        )
+        entries = info.display_entries(DisplayConfig(fields=["os", "cpu"]))
+        keys = [k for k, _, _ in entries]
+        assert keys == ["os", "cpu"]
+
+    def test_alias_maps_to_real_key(self):
+        info = SystemInfo(fields=OrderedDict([("hostname", "box")]))
+        entries = info.display_entries(DisplayConfig(fields=["host"]))
+        assert entries[0][0] == "hostname"
+
+    def test_display_items_consistent_with_entries(self):
+        info = SystemInfo(fields=OrderedDict([("os", "Linux"), ("cpu", "Intel")]))
+        items = info.display_items()
+        entries = info.display_entries()
+        assert items == [(label, value) for _, label, value in entries]

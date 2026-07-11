@@ -3,7 +3,14 @@
 from collections import OrderedDict
 
 from larpfetch.models import SystemInfo
-from larpfetch.resolver import resolve
+from larpfetch.resolver import (
+    SOURCE_CLI,
+    SOURCE_DEFAULT,
+    SOURCE_PROFILE,
+    SOURCE_REAL,
+    resolve,
+    resolve_with_sources,
+)
 
 
 def _make_info(**kwargs: str) -> SystemInfo:
@@ -171,3 +178,66 @@ class TestResolver:
         real = _make_info(os="Linux")
         result = resolve(real, {"os": "Arch"}, None, {})
         assert result.get("os") == "Arch"
+
+
+class TestResolveWithSources:
+    def test_real_source(self):
+        real = _make_info(os="Linux", cpu="Intel")
+        _, sources = resolve_with_sources(real, {}, None, {})
+        assert sources["os"] == SOURCE_REAL
+        assert sources["cpu"] == SOURCE_REAL
+
+    def test_default_source(self):
+        real = _make_info(os="Linux")
+        _, sources = resolve_with_sources(real, {"os": "Arch"}, None, {})
+        assert sources["os"] == SOURCE_DEFAULT
+
+    def test_profile_source(self):
+        real = _make_info(os="Linux")
+        _, sources = resolve_with_sources(
+            real, {"os": "Arch"}, {"os": "Windows"}, {}
+        )
+        assert sources["os"] == SOURCE_PROFILE
+
+    def test_cli_source(self):
+        real = _make_info(os="Linux")
+        _, sources = resolve_with_sources(
+            real, {"os": "Arch"}, {"os": "Windows"}, {"os": "macOS"}
+        )
+        assert sources["os"] == SOURCE_CLI
+
+    def test_mixed_sources(self):
+        real = _make_info(os="Linux", cpu="Intel", memory="16 GiB")
+        resolved, sources = resolve_with_sources(
+            real,
+            {"os": "Arch"},
+            {"cpu": "Ryzen"},
+            {"memory": "69 PiB"},
+        )
+        assert sources["os"] == SOURCE_DEFAULT
+        assert sources["cpu"] == SOURCE_PROFILE
+        assert sources["memory"] == SOURCE_CLI
+        assert resolved.get("os") == "Arch"
+
+    def test_real_shit_all_real(self):
+        real = _make_info(os="Linux", cpu="Intel")
+        resolved, sources = resolve_with_sources(
+            real,
+            {"os": "Arch"},
+            {"cpu": "Ryzen"},
+            {"memory": "69 PiB"},
+            real_shit=True,
+        )
+        assert sources["os"] == SOURCE_REAL
+        assert sources["cpu"] == SOURCE_REAL
+        assert "memory" not in resolved.fields
+        assert resolved.get("os") == "Linux"
+
+    def test_resolve_matches_resolve_with_sources(self):
+        real = _make_info(os="Linux", cpu="Intel")
+        default = {"os": "Arch"}
+        selected = {"cpu": "Ryzen"}
+        cli = {"memory": "69 PiB"}
+        a = resolve(real, default, selected, cli)
+        b, _ = resolve_with_sources(real, default, selected, cli)
+        assert a.to_dict() == b.to_dict()

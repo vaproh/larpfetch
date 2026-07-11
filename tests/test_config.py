@@ -5,11 +5,14 @@ from pathlib import Path
 import pytest
 
 from larpfetch.config import (
+    export_profile_toml,
     get_appearance,
     get_default_profile,
     get_display_config,
     get_named_profiles,
     load_config,
+    load_profile_file,
+    validate_config,
 )
 
 
@@ -179,3 +182,134 @@ memory = "RAM"
         assert dc.fields == ["os", "kernel"]
         assert dc.separator == " :: "
         assert dc.field_labels["memory"] == "RAM"
+
+
+class TestLoadProfileFile:
+    def test_flat_format(self, tmp_path):
+        f = tmp_path / "p.toml"
+        f.write_text('os = "Arch Linux"\ncpu = "Ryzen"\nlogo = "arch"\n')
+        result = load_profile_file(str(f))
+        assert result == {"os": "Arch Linux", "cpu": "Ryzen", "logo": "arch"}
+
+    def test_profile_table_format(self, tmp_path):
+        f = tmp_path / "p.toml"
+        f.write_text('[profile]\nos = "NASA Linux"\ncpu = "Quantum Potato"\n')
+        result = load_profile_file(str(f))
+        assert result == {"os": "NASA Linux", "cpu": "Quantum Potato"}
+
+    def test_ignores_nested_tables_in_flat(self, tmp_path):
+        f = tmp_path / "p.toml"
+        f.write_text('os = "Arch"\n[extra]\nx = "y"\n')
+        result = load_profile_file(str(f))
+        assert result == {"os": "Arch"}
+
+    def test_coerces_to_string(self, tmp_path):
+        f = tmp_path / "p.toml"
+        f.write_text("count = 42\n")
+        result = load_profile_file(str(f))
+        assert result == {"count": "42"}
+
+    def test_missing_file_raises(self):
+        with pytest.raises(FileNotFoundError):
+            load_profile_file("/nonexistent/profile.toml")
+
+
+class TestExportProfileToml:
+    def test_basic_export(self):
+        text = export_profile_toml({"os": "Arch Linux", "cpu": "Ryzen"})
+        assert 'os = "Arch Linux"' in text
+        assert 'cpu = "Ryzen"' in text
+
+    def test_roundtrip(self, tmp_path):
+        fields = {"os": "Arch Linux", "cpu": "Ryzen", "kernel": "6.8.0"}
+        text = export_profile_toml(fields)
+        f = tmp_path / "out.toml"
+        f.write_text(text)
+        loaded = load_profile_file(str(f))
+        for k, v in fields.items():
+            assert loaded[k] == v
+
+    def test_escapes_quotes(self, tmp_path):
+        fields = {"os": 'Weird "Quoted" OS'}
+        text = export_profile_toml(fields)
+        f = tmp_path / "out.toml"
+        f.write_text(text)
+        loaded = load_profile_file(str(f))
+        assert loaded["os"] == 'Weird "Quoted" OS'
+
+    def test_name_included_as_comment(self):
+        text = export_profile_toml({"os": "Arch"}, name="myrig")
+        assert "myrig" in text
+
+    def test_known_fields_ordered_first(self):
+        text = export_profile_toml({"zzz_custom": "x", "os": "Arch"})
+        assert text.index('os =') < text.index('zzz_custom =')
+
+
+class TestValidateConfig:
+    def test_valid_config(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[default]\nos = "Arch"\n[appearance]\ncolor = true\n')
+        errors, warnings = validate_config(str(f))
+        assert errors == []
+
+    def test_unknown_section_warns(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[bogus]\nx = 1\n')
+        errors, warnings = validate_config(str(f))
+        assert any("bogus" in w for w in warnings)
+
+    def test_unknown_appearance_key_warns(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[appearance]\nbogus = true\n')
+        errors, warnings = validate_config(str(f))
+        assert any("bogus" in w for w in warnings)
+
+    def test_non_bool_appearance_errors(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[appearance]\ncolor = "yes"\n')
+        errors, warnings = validate_config(str(f))
+        assert any("color" in e for e in errors)
+
+    def test_display_fields_must_be_list(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[display]\nfields = "os"\n')
+        errors, warnings = validate_config(str(f))
+        assert any("display.fields" in e for e in errors)
+
+    def test_unknown_display_field_warns(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[display]\nfields = ["os", "nonsense"]\n')
+        errors, warnings = validate_config(str(f))
+        assert any("nonsense" in w for w in warnings)
+
+    def test_aliases_accepted_in_display_fields(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[display]\nfields = ["host", "ram"]\n')
+        errors, warnings = validate_config(str(f))
+        assert not any("host" in w or "ram" in w for w in warnings)
+
+    def test_bad_separator_errors(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text('[display]\nseparator = 5\n')
+        errors, warnings = validate_config(str(f))
+        assert any("separator" in e for e in errors)
+
+    def test_invalid_toml_errors(self, tmp_path):
+        f = tmp_path / "config.toml"
+        f.write_text("this is [not valid {{{")
+        errors, warnings = validate_config(str(f))
+        assert any("TOML" in e for e in errors)
+
+    def test_missing_explicit_path_raises(self):
+        with pytest.raises(FileNotFoundError):
+            validate_config("/nonexistent/config.toml")
+
+    def test_no_config_warns(self, monkeypatch):
+        monkeypatch.setattr(
+            "larpfetch.config.DEFAULT_CONFIG_PATH",
+            Path("/nonexistent/config.toml"),
+        )
+        errors, warnings = validate_config()
+        assert errors == []
+        assert len(warnings) >= 1

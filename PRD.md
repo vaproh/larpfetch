@@ -19,6 +19,8 @@ Tagline: *LARP as any distro, hardware, or machine you want. Because reality is 
 - Provide `--real-shit` to bypass all LARP values
 - Support temporary CLI overrides
 - Support declarative display layout via `[display]` config and CLI density presets
+- Expose provenance: `--show-sources`, `--diff-real`, `--json --with-sources`
+- Support shareable standalone profile files (`--profile-file`, `--export-profile`)
 - Include 533 colored ASCII logos from fastfetch (MIT licensed)
 - Support inline custom ASCII art in profiles
 - Be fast, small, testable, and funny without being obnoxious
@@ -49,6 +51,13 @@ larpfetch --set key=value          # Override field (repeatable)
 larpfetch --minimal                # Short field preset
 larpfetch --compact                # Standard field preset
 larpfetch --full                   # Show all fields
+larpfetch --diff-real              # Show only fields that differ from real
+larpfetch --show-sources           # Show where each value came from
+larpfetch --json --with-sources    # JSON with per-field provenance
+larpfetch --export-profile [NAME]  # Export real system as a shareable profile
+larpfetch --profile-file PATH      # Load a standalone profile file
+larpfetch --inspect-profile NAME|PATH  # Inspect a profile or profile file
+larpfetch --check-config           # Validate the config file
 larpfetch --generate-config        # Print starter config
 larpfetch --color                  # Force color
 larpfetch --no-color               # Disable color
@@ -99,7 +108,7 @@ Examples: `Authenticity: N%`, `Source: trust me bro`, `Disappointment: immeasura
 
 ## Quality
 
-- 241+ tests covering config, display layout, resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
+- 302+ tests covering config, display layout, provenance tracking, profile resolution, `--real-shit` invariant, CLI, logos, alignment, easter eggs
 - Ruff lint clean
 - No eval/exec, no shell=True, no network, no secrets
 - Python 3.11+, `psutil` only runtime dependency

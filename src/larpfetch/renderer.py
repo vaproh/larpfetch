@@ -11,6 +11,20 @@ from larpfetch.easter_eggs import get_authenticity_line, get_extra_lines
 from larpfetch.logos import LOGO_ART, LOGO_COLORS, _normalize, get_logo_width, select_logo
 from larpfetch.models import DisplayConfig, SystemInfo
 
+# Human-friendly labels and colors for provenance sources
+_SOURCE_LABELS = {
+    "real": "real",
+    "default": "default",
+    "profile": "profile",
+    "cli": "cli",
+}
+_SOURCE_COLOR_KEYS = {
+    "real": "GREEN",
+    "default": "BLUE",
+    "profile": "MAGENTA",
+    "cli": "YELLOW",
+}
+
 # Original ANSI color values (never mutated)
 _COLOR_VALUES = {
     "RESET": "\033[0m",
@@ -254,3 +268,80 @@ def render(
         output_lines.append(f"{logo_line}{' ' * (pad - _visible_len(logo_line))}{info_line}")
 
     return "\n".join(output_lines)
+
+
+def render_diff(
+    resolved: SystemInfo,
+    real: SystemInfo,
+    appearance: dict[str, Any] | None = None,
+    display_config: DisplayConfig | None = None,
+) -> str:
+    """Render only the fields where the displayed identity differs from real.
+
+    Format per line: ``Label   real_value  ->  displayed_value``
+    """
+    appearance = appearance or {}
+    use_color = _should_color(appearance.get("color"))
+    colors = _get_colors(use_color)
+
+    real_dict = real.to_dict()
+    diffs: list[tuple[str, str, str]] = []
+    for key, label, displayed in resolved.display_entries(display_config):
+        real_val = real_dict.get(key, "")
+        if displayed != real_val:
+            diffs.append((label, real_val or "(none)", displayed))
+
+    if not diffs:
+        return (
+            f"{colors['DIM']}No differences. "
+            f"You are being honest for once.{colors['RESET']}"
+        )
+
+    label_w = max(_visible_len(lbl) for lbl, _, _ in diffs)
+    real_w = max(_visible_len(rv) for _, rv, _ in diffs)
+
+    lines: list[str] = []
+    for label, real_val, displayed in diffs:
+        lbl = f"{colors['BOLD']}{label}{colors['RESET']}"
+        lbl_pad = " " * (label_w - _visible_len(label))
+        rv = f"{colors['RED']}{real_val}{colors['RESET']}"
+        rv_pad = " " * (real_w - _visible_len(real_val))
+        arrow = f"{colors['DIM']}->{colors['RESET']}"
+        disp = f"{colors['GREEN']}{displayed}{colors['RESET']}"
+        lines.append(f"{lbl}{lbl_pad}  {rv}{rv_pad}  {arrow}  {disp}")
+
+    return "\n".join(lines)
+
+
+def render_sources(
+    resolved: SystemInfo,
+    sources: dict[str, str],
+    appearance: dict[str, Any] | None = None,
+    display_config: DisplayConfig | None = None,
+) -> str:
+    """Render each displayed field annotated with its provenance source."""
+    appearance = appearance or {}
+    use_color = _should_color(appearance.get("color"))
+    colors = _get_colors(use_color)
+
+    rows = [
+        (label, value, sources.get(key, "real"))
+        for key, label, value in resolved.display_entries(display_config)
+    ]
+
+    if not rows:
+        return ""
+
+    label_w = max(_visible_len(lbl) for lbl, _, _ in rows)
+    value_w = max(_visible_len(val) for _, val, _ in rows)
+
+    lines: list[str] = []
+    for label, value, source in rows:
+        lbl = f"{colors['GREEN']}{label}{colors['RESET']}"
+        lbl_pad = " " * (label_w - _visible_len(label))
+        val_pad = " " * (value_w - _visible_len(value))
+        src_color = colors[_SOURCE_COLOR_KEYS.get(source, "WHITE")]
+        src = f"{src_color}[{_SOURCE_LABELS.get(source, source)}]{colors['RESET']}"
+        lines.append(f"{lbl}{lbl_pad}  {value}{val_pad}  {src}")
+
+    return "\n".join(lines)

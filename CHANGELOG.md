@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.4.0
+
+- `--diff-real`: show only fields where the displayed identity differs from real detection
+- `--show-sources`: annotate each displayed value with its origin (real/default/profile/cli)
+- `--json --with-sources`: per-field provenance (value, source, real_value) in JSON
+- `--export-profile [NAME]`: export real detected system as a shareable standalone profile
+- `--profile-file PATH`: load a standalone profile from a TOML file (data-only, no code execution)
+- `--inspect-profile NAME|PATH`: inspect a named profile or profile file
+- `--check-config`: validate config syntax, unknown sections/keys, and value types
+- Provenance tracking in the resolver (`resolve_with_sources`)
+- 302 tests (up from 241)
+
 ## v1.3.0
 
 - Declarative `[display]` config section with field ordering, labels, separator, and hide-unavailable
