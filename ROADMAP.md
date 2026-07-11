@@ -53,7 +53,7 @@ Cover the most useful missing real-system fields.
 
 - Battery percentage and charging/discharging state ✅
 - Display resolution and refresh rate ✅
-- Desktop environment / window manager / compositor
+- Desktop environment / window manager / compositor ✅
 - Terminal emulator detection ✅
 - Device model and motherboard model
 - Better multi-GPU handling (integrated + dedicated + eGPU)

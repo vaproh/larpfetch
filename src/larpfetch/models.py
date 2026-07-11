@@ -26,6 +26,8 @@ KNOWN_FIELDS = [
     "resolution",
     "battery",
     "de",
+    "wm",
+    "compositor",
     "package_manager",
     "package_count",
 ]
@@ -53,6 +55,8 @@ FIELD_LABELS: dict[str, str] = {
     "resolution": "Resolution",
     "battery": "Battery",
     "de": "DE",
+    "wm": "WM",
+    "compositor": "Compositor",
     "package_manager": "Packages",
     "package_count": "Package Count",
 }

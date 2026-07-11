@@ -205,6 +205,77 @@ def _detect_terminal() -> str:
     return ""
 
 
+def _detect_wm() -> str:
+    """Best-effort window manager detection.
+
+    Wayland compositors self-identify via env vars; on X11 the root window's
+    ``_NET_WM_NAME`` is queried. Returns "" when nothing is found.
+    """
+    if os.environ.get("HYPRLAND_INSTANCE_SIGNATURE"):
+        return "Hyprland"
+    if os.environ.get("SWAYSOCK"):
+        return "Sway"
+    if os.environ.get("DISPLAY"):
+        try:
+            result = subprocess.run(
+                ["xprop", "-root", "_NET_WM_NAME"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if result.returncode == 0:
+                match = re.search(r'=\s*"?([^"\n]+?)"?\s*$', result.stdout)
+                if match:
+                    return match.group(1).strip()
+        except Exception:
+            pass
+    return ""
+
+
+def _process_running(name: str) -> bool:
+    """Return True if a process named ``name`` is running (best-effort)."""
+    try:
+        r = subprocess.run(["pgrep", "-x", name], capture_output=True, timeout=3)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+
+def _detect_compositor() -> str:
+    """Best-effort compositor detection.
+
+    On Wayland the compositor is the window manager itself, so the WM name is
+    reused. On X11 a compositor owns ``_NET_WM_CM_S0``; the owning process is
+    named when recognizable, otherwise reported as ``active``.
+    """
+    wayland = bool(
+        os.environ.get("WAYLAND_DISPLAY")
+        or os.environ.get("HYPRLAND_INSTANCE_SIGNATURE")
+        or os.environ.get("SWAYSOCK")
+    )
+    if wayland:
+        return _detect_wm()
+
+    if os.environ.get("DISPLAY"):
+        try:
+            result = subprocess.run(
+                ["xprop", "-root", "_NET_WM_CM_S0"],
+                capture_output=True,
+                text=True,
+                timeout=3,
+            )
+            if result.returncode == 0:
+                out = result.stdout
+                if "0x0" not in out and "not found" not in out:
+                    for proc in ("picom", "compton", "xcompmgr"):
+                        if _process_running(proc):
+                            return proc
+                    return "active"
+        except Exception:
+            pass
+    return ""
+
+
 def collect_common(disk_info: bool = False) -> SystemInfo:
     """Collect information common across all platforms."""
     info = SystemInfo(fields=OrderedDict())
@@ -288,6 +359,20 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
         terminal = _detect_terminal()
         if terminal:
             info.set("terminal", terminal)
+    except Exception:
+        pass
+
+    # Window manager and compositor
+    try:
+        wm = _detect_wm()
+        if wm:
+            info.set("wm", wm)
+    except Exception:
+        pass
+    try:
+        compositor = _detect_compositor()
+        if compositor:
+            info.set("compositor", compositor)
     except Exception:
         pass
 

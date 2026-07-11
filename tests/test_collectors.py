@@ -3,11 +3,13 @@
 from unittest.mock import MagicMock, patch
 
 from larpfetch.collectors.common import (
+    _detect_compositor,
     _detect_resolution,
     _detect_resolution_darwin,
     _detect_resolution_linux,
     _detect_resolution_windows,
     _detect_terminal,
+    _detect_wm,
     _fmt_battery,
     _fmt_bytes,
     _fmt_uptime,
@@ -254,6 +256,76 @@ class TestTerminal:
     def test_collect_common_includes_terminal(self, monkeypatch):
         monkeypatch.setenv("TERM_PROGRAM", "WezTerm")
         assert collect_common().get("terminal") == "WezTerm"
+
+
+class TestWMCompositor:
+    def _no_wayland(self, monkeypatch):
+        for var in ("WAYLAND_DISPLAY", "HYPRLAND_INSTANCE_SIGNATURE", "SWAYSOCK"):
+            monkeypatch.delenv(var, raising=False)
+
+    def test_wm_hyprland(self, monkeypatch):
+        monkeypatch.setenv("HYPRLAND_INSTANCE_SIGNATURE", "abc")
+        assert _detect_wm() == "Hyprland"
+
+    def test_wm_sway(self, monkeypatch):
+        monkeypatch.delenv("HYPRLAND_INSTANCE_SIGNATURE", raising=False)
+        monkeypatch.setenv("SWAYSOCK", "/tmp/sway.sock")
+        assert _detect_wm() == "Sway"
+
+    def test_wm_x11(self, monkeypatch):
+        self._no_wayland(monkeypatch)
+        monkeypatch.setenv("DISPLAY", ":0")
+        mock_result = MagicMock(returncode=0, stdout='_NET_WM_NAME = "i3"\n')
+        with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
+            assert _detect_wm() == "i3"
+
+    def test_wm_empty(self, monkeypatch):
+        self._no_wayland(monkeypatch)
+        monkeypatch.delenv("DISPLAY", raising=False)
+        assert _detect_wm() == ""
+
+    def test_compositor_wayland(self, monkeypatch):
+        monkeypatch.setenv("HYPRLAND_INSTANCE_SIGNATURE", "abc")
+        assert _detect_compositor() == "Hyprland"
+
+    def test_compositor_x11_named(self, monkeypatch):
+        self._no_wayland(monkeypatch)
+        monkeypatch.setenv("DISPLAY", ":0")
+
+        def fake_run(args, **kwargs):
+            if args[0] == "xprop":
+                return MagicMock(returncode=0, stdout="_NET_WM_CM_S0 = 0x1c00003\n")
+            if args[0] == "pgrep":
+                return MagicMock(returncode=0 if args[2] == "picom" else 1, stdout="")
+            return MagicMock(returncode=1, stdout="")
+
+        with patch("larpfetch.collectors.common.subprocess.run", side_effect=fake_run):
+            assert _detect_compositor() == "picom"
+
+    def test_compositor_x11_active(self, monkeypatch):
+        self._no_wayland(monkeypatch)
+        monkeypatch.setenv("DISPLAY", ":0")
+
+        def fake_run(args, **kwargs):
+            if args[0] == "xprop":
+                return MagicMock(returncode=0, stdout="_NET_WM_CM_S0 = 0x1c00003\n")
+            if args[0] == "pgrep":
+                return MagicMock(returncode=1, stdout="")
+            return MagicMock(returncode=1, stdout="")
+
+        with patch("larpfetch.collectors.common.subprocess.run", side_effect=fake_run):
+            assert _detect_compositor() == "active"
+
+    def test_compositor_empty(self, monkeypatch):
+        self._no_wayland(monkeypatch)
+        monkeypatch.delenv("DISPLAY", raising=False)
+        assert _detect_compositor() == ""
+
+    def test_collect_common_includes_wm(self, monkeypatch):
+        monkeypatch.delenv("HYPRLAND_INSTANCE_SIGNATURE", raising=False)
+        monkeypatch.setenv("SWAYSOCK", "/tmp/sway.sock")
+        assert collect_common().get("wm") == "Sway"
+        assert collect_common().get("compositor") == "Sway"
 
 
 class TestCollectPlatform:

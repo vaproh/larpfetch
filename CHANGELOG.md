@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- **DE / WM / compositor** (v1.5): new `wm` and `compositor` fields. WM detects
+  Hyprland/Sway via env and falls back to X11 `_NET_WM_NAME`; compositor reuses
+  the WM on Wayland and detects X11 compositors via `_NET_WM_CM_S0`
+  (`picom`/`compton`/`xcompmgr`, else `active`). All degrade gracefully.
 - **Terminal emulator detection** (v1.5): a new `terminal` field reports the
   emulator from `TERM_PROGRAM` (e.g. `iTerm`, `WezTerm`), `WT_SESSION`
   (`Windows Terminal`), `TERMINAL`, `COLORTERM`, or `TERM`; degrades gracefully.
