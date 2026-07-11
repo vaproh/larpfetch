@@ -14,11 +14,18 @@
 [![Logos from fastfetch](https://img.shields.io/badge/logos-fastfetch-FF6B6B?style=flat-square)](https://github.com/fastfetch-cli/fastfetch)
 [![100% Autonomous](https://img.shields.io/badge/100%25%20made%20by-autonomous%20agents-9b59b6?style=flat-square)](AGENTS.md)
 
+<table>
+  <tr>
+    <td valign="top">
+
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 13 built-in LARP profiles.
 
-<p align="center">
-  <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="320">
-</p>
+    </td>
+    <td valign="top">
+      <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="300">
+    </td>
+  </tr>
+</table>
 
 ## Demo
 
