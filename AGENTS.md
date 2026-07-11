@@ -169,10 +169,15 @@ No `eval`/`exec`, no arbitrary code execution from TOML, no network access, no u
 1. Read `PRD.md`, `AGENTS.md`, and `ROADMAP.md`.
 2. Inspect existing code and tests.
 3. Work in small coherent changes following the roadmap.
-4. Run `just check` after each change.
-5. Test the CLI manually (`uv run larpfetch ...`).
-6. Commit after every feature addition or change.
-7. Do not leave placeholders, TODOs, or broken code.
+4. Update relevant files for every change — not just code:
+   - Add/extend tests (`tests/`) so `just check` covers the new behavior.
+   - Update `CHANGELOG.md` (new `## vX.Y.Z` entry describing the change).
+   - Update user-facing docs that the change affects: `README.md`, `docs/CONFIG.md`, `ROADMAP.md` (mark shipped items), and `AGENTS.md`/`PRD.md` when conventions or the feature surface change.
+   - Bump `version` in `pyproject.toml` and `src/larpfetch/__init__.py` when cutting a release; refresh `uv.lock` if `pyproject.toml` changed (`uv lock`).
+5. Run `just check` after each change.
+6. Test the CLI manually (`uv run larpfetch ...`).
+7. Commit after every feature addition or change.
+8. Do not leave placeholders, TODOs, or broken code.
 
 ## Publishing
 
