@@ -115,6 +115,44 @@ Real values only — bypasses everything
 
 CLI density presets (`--minimal`, `--compact`, `--full`) override `[display].fields` for that run.
 
+#### Display density presets
+
+The CLI flags `--minimal`, `--compact`, and `--full` set `fields` to a fixed
+list for that invocation:
+
+- `--minimal` → `os, kernel, uptime, cpu, memory, shell`
+- `--compact` → common identity + hardware fields, no logo
+- `--full` → all fields (default)
+
+Explicit `[display].fields` in the config still applies unless a density flag
+is passed.
+
+#### Logo selection
+
+The logo shown follows this priority:
+
+1. `--logo NAME` (CLI, highest)
+2. profile `logo` field (built-in name or inline art)
+3. real OS (when `--real-shit`)
+4. displayed OS/distro
+
+`logo` is a **meta field** — it controls the artwork but is never displayed
+as a data row.
+
+## Troubleshooting
+
+- **Config not found:** larpfetch works with zero config (real values only).
+  Use `--generate-config` to create one, or `--config PATH` to point at a file.
+- **Profile not found:** `--profile foo` errors if `foo` isn't a built-in or
+  config profile. List available ones with `--list-profiles`.
+- **Logo not found:** if `--logo NAME` or a profile `logo` doesn't match a
+  built-in name and isn't inline art, larpfetch falls back to the OS-based logo.
+- **`--check-config` reports errors:** fix the TOML — e.g. `color` must be a
+  boolean, `[display].fields` must be a list of strings. Warnings (unknown
+  sections/keys) are non-fatal.
+- **Color looks wrong in a pipe:** color is auto-disabled when stdout isn't a
+  TTY and when `NO_COLOR` is set. Force it with `--color`.
+
 ## Standalone profile files
 
 In addition to profiles defined in the main config, you can load a profile from a separate file with `--profile-file PATH`. This is how profiles are shared.
@@ -185,6 +223,7 @@ logo = "arch"
 
 ## See also
 
-- [README.md](../README.md) — usage, CLI reference, built-in profiles
+- [USAGE.md](USAGE.md) — full command reference with examples
+- [README.md](../README.md) — overview, CLI reference, built-in profiles
 - [ROADMAP.md](../ROADMAP.md) — planned features
 - [CHANGELOG.md](../CHANGELOG.md) — version history

@@ -116,7 +116,7 @@ TOML via `tomllib`. Sections: `[default]`, `[profiles.NAME]`, `[appearance]`, `[
 - `[display]` controls field order, labels, separator, hide-unavailable.
 - Standalone profile files (`--profile-file PATH`) are data-only: scalar key/value pairs (flat or under `[profile]`), never executed. `--export-profile` writes this format; `--check-config` validates the main config.
 
-Full reference: `docs/CONFIG.md`.
+Full reference: `docs/CONFIG.md`. Command reference: `docs/USAGE.md`.
 
 ## CLI
 

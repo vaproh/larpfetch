@@ -1,8 +1,8 @@
 # Architecture
 
 This document describes how larpfetch is structured internally. For user-facing
-behavior, see [README.md](../README.md), [docs/CONFIG.md](CONFIG.md), and
-[PRD.md](../PRD.md). For the release plan, see [ROADMAP.md](../ROADMAP.md).
+behavior, see [README.md](../README.md), [docs/CONFIG.md](CONFIG.md),
+[docs/USAGE.md](USAGE.md), and [PRD.md](../PRD.md). For the release plan, see [ROADMAP.md](../ROADMAP.md).
 
 ## Module map
 

@@ -151,7 +151,7 @@ memory = "RAM"
 - **macOS**: `~/Library/Application Support/larpfetch/config.toml`
 - **Windows**: `%APPDATA%\larpfetch\config.toml`
 
-For the full config reference (all fields, appearance options, profiles, inline logos), see [docs/CONFIG.md](docs/CONFIG.md).
+For the full config reference (all fields, appearance options, profiles, inline logos), see [docs/CONFIG.md](docs/CONFIG.md). For a complete command reference, see [docs/USAGE.md](docs/USAGE.md).
 
 ## Precedence
 
@@ -290,6 +290,7 @@ larpfetch --inspect-profile myrig.toml          # see what a profile contains
 
 ## Resources
 
+- [Usage docs](docs/USAGE.md) — full command reference with examples
 - [Configuration docs](docs/CONFIG.md) — full config reference
 - [Architecture](docs/architecture.md) — module map and data flow
 - [Changelog](CHANGELOG.md) — version history
