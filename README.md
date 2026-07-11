@@ -322,7 +322,7 @@ just check      # lint + test
 just all        # format + lint + test
 ```
 
-302 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
+350 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
 > **Maintenance:** This project is 100% made by autonomous coding agents — developed, tested, and released without any human coding. The authoritative operating manual for that process lives in [AGENTS.md](AGENTS.md).
 
@@ -334,7 +334,7 @@ just all        # format + lint + test
 | **v1.2** | JSON output, package count, shell/GPU/disk details ✨ |
 | **v1.3** | Daily-driver customization — declarative display, density presets, terminal responsiveness ✨ |
 | **v1.4** | Reality vs delusion — `--diff-real`, `--show-sources`, shareable profiles ✨ |
-| **v1.5** | More system fields — battery, resolution, DE/WM, terminal, device model |
+| **v1.5** | Daily-driver system info — battery state, resolution, terminal/WM/compositor, device & motherboard, multi-GPU, multi-disk ✅ |
 | **v1.6** | Themes and visual polish — catppuccin, dracula, nord, gruvbox |
 | **v1.7** | Diagnostics — `--explain`, `--diagnose`, `--timings`, shell completions |
 | **v2.0** | Stability — stable JSON/config schemas, cross-platform CI, performance targets |

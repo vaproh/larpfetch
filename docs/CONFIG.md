@@ -33,8 +33,15 @@ Sets fallback values for any field not overridden by a profile or CLI. Supports 
 | `gpu` | `"NVIDIA RTX 5090"` |
 | `memory` | `"128 GiB"` |
 | `disk` | `"256 GiB / 1 TiB"` |
+| `disk_detail` | `"/: 100 GiB/500 GiB \| /home: 300 GiB/1 TiB"` |
 | `battery` | `"98% (charging)"` |
+| `resolution` | `"1920x1080 @ 60Hz"` |
 | `de` | `"Hyprland"` |
+| `wm` | `"Hyprland"` |
+| `compositor` | `"Hyprland"` |
+| `terminal` | `"kitty"` |
+| `device` | `"XPS 13 9310"` |
+| `motherboard` | `"Dell Inc. 0PPRXH"` |
 | `package_manager` | `"apt btw"` |
 | `package_count` | `"6942"` |
 | `logo` | `"arch"` |
