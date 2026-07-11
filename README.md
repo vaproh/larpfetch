@@ -10,8 +10,11 @@
 [![Built with Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
 [![Powered by psutil](https://img.shields.io/badge/powered%20by-psutil-00ADD8?style=flat-square)](https://github.com/giampaolo/psutil)
 [![Logos from fastfetch](https://img.shields.io/badge/logos-fastfetch-FF6B6B?style=flat-square)](https://github.com/fastfetch-cli/fastfetch)
+[![100% Autonomous](https://img.shields.io/badge/100%25%20made%20by-autonomous%20agents-9b59b6?style=flat-square)](AGENTS.md)
 
 A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
+
+> **100% made by autonomous coding agents** — no human writes code here. See [AGENTS.md](AGENTS.md) for the operating manual.
 
 ## Demo
 
