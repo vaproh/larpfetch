@@ -1,8 +1,19 @@
+<table>
+  <tr>
+    <td valign="top">
+
 # larpfetch
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
 
 > **100% made by autonomous coding agents** — no human writes code here. See [AGENTS.md](AGENTS.md) for the operating manual.
+
+    </td>
+    <td valign="top">
+      <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="300">
+    </td>
+  </tr>
+</table>
 
 > If you like this project, drop a ⭐ on [GitHub](https://github.com/vaproh/larpfetch) — it helps others find it.
 
@@ -20,10 +31,6 @@ A cross-platform terminal fetch utility that detects real system information and
 
 <p align="center">
   <img src="assets/demo.gif" alt="larpfetch demo" width="816">
-</p>
-
-<p align="center">
-  <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="320">
 </p>
 
 ## Installation
