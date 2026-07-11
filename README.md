@@ -22,7 +22,7 @@ A cross-platform terminal fetch utility that detects real system information and
 
     </td>
     <td valign="top">
-      <img src="https://media.tenor.com/oK1OPztX5gMAAAAM/no-limit-to-larp.gif" alt="There's no limit to the LARP" width="300">
+      <img src="assets/larp-meme.gif" alt="There's no limit to the LARP" width="300">
     </td>
   </tr>
 </table>
