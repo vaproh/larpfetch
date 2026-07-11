@@ -7,6 +7,7 @@ from larpfetch.collectors.common import (
     _detect_resolution_darwin,
     _detect_resolution_linux,
     _detect_resolution_windows,
+    _detect_terminal,
     _fmt_battery,
     _fmt_bytes,
     _fmt_uptime,
@@ -206,6 +207,53 @@ class TestResolution:
         )
         info = collect_common()
         assert info.get("resolution") == "1920x1080 @ 60Hz"
+
+
+class TestTerminal:
+    def test_term_program(self, monkeypatch):
+        monkeypatch.setenv("TERM_PROGRAM", "iTerm.app")
+        assert _detect_terminal() == "iTerm"
+
+    def test_windows_terminal(self, monkeypatch):
+        monkeypatch.delenv("TERM_PROGRAM", raising=False)
+        monkeypatch.setenv("WT_SESSION", "1")
+        assert _detect_terminal() == "Windows Terminal"
+
+    def test_terminal_env_path(self, monkeypatch):
+        monkeypatch.delenv("TERM_PROGRAM", raising=False)
+        monkeypatch.delenv("WT_SESSION", raising=False)
+        monkeypatch.delenv("WT_PROFILE_ID", raising=False)
+        monkeypatch.setenv("TERMINAL", "/usr/bin/kitty")
+        assert _detect_terminal() == "kitty"
+
+    def test_colorterm_fallback(self, monkeypatch):
+        for var in ("TERM_PROGRAM", "WT_SESSION", "WT_PROFILE_ID", "TERMINAL"):
+            monkeypatch.delenv(var, raising=False)
+        monkeypatch.setenv("COLORTERM", "ghostty")
+        assert _detect_terminal() == "ghostty"
+
+    def test_truecolor_not_used(self, monkeypatch):
+        for var in ("TERM_PROGRAM", "WT_SESSION", "WT_PROFILE_ID", "TERMINAL"):
+            monkeypatch.delenv(var, raising=False)
+        monkeypatch.setenv("COLORTERM", "truecolor")
+        monkeypatch.setenv("TERM", "xterm-256color")
+        assert _detect_terminal() == "xterm-256color"
+
+    def test_empty_when_unknown(self, monkeypatch):
+        for var in (
+            "TERM_PROGRAM",
+            "WT_SESSION",
+            "WT_PROFILE_ID",
+            "TERMINAL",
+            "COLORTERM",
+            "TERM",
+        ):
+            monkeypatch.delenv(var, raising=False)
+        assert _detect_terminal() == ""
+
+    def test_collect_common_includes_terminal(self, monkeypatch):
+        monkeypatch.setenv("TERM_PROGRAM", "WezTerm")
+        assert collect_common().get("terminal") == "WezTerm"
 
 
 class TestCollectPlatform:

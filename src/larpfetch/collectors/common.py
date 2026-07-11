@@ -176,6 +176,35 @@ def _detect_resolution_windows() -> str:
     return ""
 
 
+def _detect_terminal() -> str:
+    """Best-effort terminal emulator detection from the process environment.
+
+    Relies on commonly exported variables (``TERM_PROGRAM``, ``WT_SESSION``,
+    ``TERMINAL``, ``COLORTERM``, ``TERM``). Returns "" when nothing useful is
+    found. The shell's own name is intentionally not used as a fallback.
+    """
+    prog = os.environ.get("TERM_PROGRAM", "").strip()
+    if prog:
+        return prog.replace(".app", "")
+
+    if os.environ.get("WT_SESSION") or os.environ.get("WT_PROFILE_ID"):
+        return "Windows Terminal"
+
+    term = os.environ.get("TERMINAL", "").strip()
+    if term:
+        # May be a full path like /usr/bin/kitty
+        return Path(term).name
+
+    colorterm = os.environ.get("COLORTERM", "").strip()
+    if colorterm and colorterm.lower() not in ("truecolor", "true"):
+        return colorterm
+
+    t = os.environ.get("TERM", "").strip()
+    if t:
+        return t
+    return ""
+
+
 def collect_common(disk_info: bool = False) -> SystemInfo:
     """Collect information common across all platforms."""
     info = SystemInfo(fields=OrderedDict())
@@ -251,6 +280,14 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
     # CPU model
     try:
         info.set("cpu", _detect_cpu())
+    except Exception:
+        pass
+
+    # Terminal emulator
+    try:
+        terminal = _detect_terminal()
+        if terminal:
+            info.set("terminal", terminal)
     except Exception:
         pass
 

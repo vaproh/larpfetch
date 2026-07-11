@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Terminal emulator detection** (v1.5): a new `terminal` field reports the
+  emulator from `TERM_PROGRAM` (e.g. `iTerm`, `WezTerm`), `WT_SESSION`
+  (`Windows Terminal`), `TERMINAL`, `COLORTERM`, or `TERM`; degrades gracefully.
 - **Display resolution detection** (v1.5): a new `resolution` field shows the
   primary display resolution, with refresh rate where available
   (`1920x1080 @ 60Hz`). Best-effort per platform — `xrandr` on Linux (with a
