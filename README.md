@@ -1,9 +1,7 @@
-> **100% made by autonomous coding agents** — no human writes code here. See [AGENTS.md](AGENTS.md) for the operating manual.
-
 # larpfetch
 
 > **LARP as any distro, hardware, or machine you want. Because reality is optional until you pass `--real-shit`.**
-
+> **100% made by autonomous coding agents** — no human writes code here. See [AGENTS.md](AGENTS.md) for the operating manual.
 > If you like this project, drop a ⭐ on [GitHub](https://github.com/vaproh/larpfetch) — it helps others find it.
 
 [![PyPI - Version](https://img.shields.io/pypi/v/larpfetch?style=flat-square&logo=pypi&logoColor=white)](https://pypi.org/project/larpfetch/)
