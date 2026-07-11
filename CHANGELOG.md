@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### v1.5 — Daily-Driver System Information
+
+- Battery now reports charging/discharging state in addition to percentage
+  (e.g. `87% (charging)`, `42% (discharging, 3h 15m left)`, `100% (full)`)
+- Battery detection degrades gracefully when `psutil` is unavailable
+
 ## v1.4.0
 
 Reality vs Delusion: provenance, diff, sources, and shareable profiles.

@@ -41,6 +41,33 @@ def _fmt_uptime(seconds: float) -> str:
     return " ".join(parts)
 
 
+def _fmt_battery(percent: float, power_plugged: bool | None, secsleft: float) -> str:
+    """Format battery percent plus charging/discharging state.
+
+    psutil reports secsleft as a positive estimate, POWER_TIME_UNLIMITED
+    (-1) when plugged in with no estimate, or POWER_TIME_UNKNOWN (-2).
+    """
+    base = f"{percent:.0f}%"
+    if power_plugged is None:
+        return base
+    if power_plugged:
+        if percent >= 100:
+            return f"{base} (full)"
+        if secsleft == -1:  # psutil.POWER_TIME_UNLIMITED
+            return f"{base} (charging)"
+        return f"{base} (charging)"
+    # Discharging
+    if secsleft and secsleft > 0:
+        mins = int(secsleft // 60)
+        hours, rem = divmod(mins, 60)
+        if hours:
+            left = f"{hours}h {rem}m"
+        else:
+            left = f"{mins}m"
+        return f"{base} (discharging, {left} left)"
+    return f"{base} (discharging)"
+
+
 def collect_common(disk_info: bool = False) -> SystemInfo:
     """Collect information common across all platforms."""
     info = SystemInfo(fields=OrderedDict())
@@ -109,7 +136,7 @@ def collect_common(disk_info: bool = False) -> SystemInfo:
         if psutil is not None:
             bat = psutil.sensors_battery()
             if bat is not None:
-                info.set("battery", f"{bat.percent}%")
+                info.set("battery", _fmt_battery(bat.percent, bat.power_plugged, bat.secsleft))
     except Exception:
         pass
 

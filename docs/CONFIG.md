@@ -33,7 +33,7 @@ Sets fallback values for any field not overridden by a profile or CLI. Supports 
 | `gpu` | `"NVIDIA RTX 5090"` |
 | `memory` | `"128 GiB"` |
 | `disk` | `"256 GiB / 1 TiB"` |
-| `battery` | `"98%"` |
+| `battery` | `"98% (charging)"` |
 | `de` | `"Hyprland"` |
 | `package_manager` | `"apt btw"` |
 | `package_count` | `"6942"` |

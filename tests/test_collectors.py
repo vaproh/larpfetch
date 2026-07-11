@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 from larpfetch.collectors.common import (
+    _fmt_battery,
     _fmt_bytes,
     _fmt_uptime,
     collect_all,
@@ -44,6 +45,32 @@ class TestFmtBytes:
     def test_partial_values(self):
         assert _fmt_bytes(1536) == "1.5 KiB"
         assert _fmt_bytes(2048) == "2.0 KiB"
+
+
+class TestFmtBattery:
+    def test_discharging_with_time(self):
+        out = _fmt_battery(42.0, False, 3 * 3600 + 15 * 60)
+        assert out == "42% (discharging, 3h 15m left)"
+
+    def test_discharging_minutes_only(self):
+        out = _fmt_battery(7.0, False, 9 * 60)
+        assert out == "7% (discharging, 9m left)"
+
+    def test_discharging_no_estimate(self):
+        out = _fmt_battery(50.0, False, -2)
+        assert out == "50% (discharging)"
+
+    def test_charging(self):
+        out = _fmt_battery(87.0, True, -1)
+        assert out == "87% (charging)"
+
+    def test_full(self):
+        out = _fmt_battery(100.0, True, -1)
+        assert out == "100% (full)"
+
+    def test_unknown_plug_state(self):
+        out = _fmt_battery(66.0, None, 0)
+        assert out == "66%"
 
 
 class TestFmtUptime:
@@ -226,6 +253,43 @@ class TestCollectAll:
         # smoke test: no crash
         info = collect_all(gpu_info=True)
         _ = info  # no crash
+
+    def test_battery_charging_state(self):
+        fake = MagicMock()
+        fake.percent = 87.0
+        fake.power_plugged = True
+        fake.secsleft = -1
+        with patch("larpfetch.collectors.common.psutil") as mock_psutil:
+            mock_psutil.sensors_battery.return_value = fake
+            mock_psutil.virtual_memory.return_value = MagicMock(
+                used=1, total=2
+            )
+            mock_psutil.disk_usage.return_value = MagicMock(used=1, total=2)
+            mock_psutil.boot_time.return_value = 0
+            info = collect_common()
+        assert info.get("battery") == "87% (charging)"
+
+    def test_battery_discharging_state(self):
+        fake = MagicMock()
+        fake.percent = 42.0
+        fake.power_plugged = False
+        fake.secsleft = 3 * 3600 + 15 * 60
+        with patch("larpfetch.collectors.common.psutil") as mock_psutil:
+            mock_psutil.sensors_battery.return_value = fake
+            mock_psutil.virtual_memory.return_value = MagicMock(used=1, total=2)
+            mock_psutil.disk_usage.return_value = MagicMock(used=1, total=2)
+            mock_psutil.boot_time.return_value = 0
+            info = collect_common()
+        assert info.get("battery") == "42% (discharging, 3h 15m left)"
+
+    def test_battery_none_is_empty(self):
+        with patch("larpfetch.collectors.common.psutil") as mock_psutil:
+            mock_psutil.sensors_battery.return_value = None
+            mock_psutil.virtual_memory.return_value = MagicMock(used=1, total=2)
+            mock_psutil.disk_usage.return_value = MagicMock(used=1, total=2)
+            mock_psutil.boot_time.return_value = 0
+            info = collect_common()
+        assert info.get("battery") == ""
 
 
 class TestCollectorFailureDegradation:
