@@ -240,7 +240,7 @@ chmod +x /tmp/demo_runner.sh
 # 2. Record
 rm -f /tmp/larpfetch_demo.cast
 asciinema rec /tmp/larpfetch_demo.cast \
-  --command "stty cols 95 rows 24 && /tmp/demo_runner.sh" \
+  --command "stty cols 95 rows 28 && /tmp/demo_runner.sh" \
   --overwrite
 
 # 3. Fix header dimensions
@@ -248,7 +248,7 @@ python3 -c "
 import json
 with open('/tmp/larpfetch_demo.cast') as f:
     h = json.loads(f.readline()); d = f.read()
-h['term']['cols'] = 95; h['term']['rows'] = 24
+    h['term']['cols'] = 95; h['term']['rows'] = 28
 with open('/tmp/larpfetch_demo.cast', 'w') as f:
     f.write(json.dumps(h, separators=(',', ':')) + '\n' + d)
 "
@@ -258,6 +258,6 @@ which agg || curl -sL https://github.com/asciinema/agg/releases/latest/download/
 AGG=/tmp/agg
 
 # 5. Render GIF
-$AGG --theme github-dark --cols 95 --rows 24 --font-size 14 --speed 1 \
+$AGG --theme github-dark --cols 95 --rows 28 --font-size 14 --speed 1 \
   /tmp/larpfetch_demo.cast assets/demo.gif
 ```
