@@ -1,6 +1,7 @@
 """Tests for the config module."""
 
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -98,7 +99,7 @@ class TestGetDefaultProfile:
         assert result == {"os": "Linux", "kernel": "5.15.0"}
 
     def test_empty_default(self):
-        config = {}
+        config: dict[str, Any] = {}
         result = get_default_profile(config)
         assert result == {}
 
@@ -117,7 +118,7 @@ class TestGetNamedProfiles:
         assert result["nasa"]["os"] == "NASA Linux"
 
     def test_empty_profiles(self):
-        config = {}
+        config: dict[str, Any] = {}
         result = get_named_profiles(config)
         assert result == {}
 
@@ -129,14 +130,14 @@ class TestGetAppearance:
         assert result["color"] is True
 
     def test_empty_appearance(self):
-        config = {}
+        config: dict[str, Any] = {}
         result = get_appearance(config)
         assert result == {}
 
 
 class TestGetDisplayConfig:
     def test_no_display_section_returns_defaults(self):
-        config = {}
+        config: dict[str, Any] = {}
         dc = get_display_config(config)
         assert dc.fields is None
         assert dc.field_labels is None

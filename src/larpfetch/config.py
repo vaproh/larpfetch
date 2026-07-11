@@ -22,21 +22,22 @@ _APPEARANCE_BOOL_KEYS = {
     "pipe",
 }
 
-# Platform default config paths
-if sys.platform == "darwin":
-    _DEFAULT_CONFIG_DIR = Path.home() / "Library" / "Application Support" / "larpfetch"
-elif sys.platform == "win32":
-    _DEFAULT_CONFIG_DIR = Path(os.environ.get("APPDATA", "")) / "larpfetch"
-    if not str(_DEFAULT_CONFIG_DIR).strip("\\"):
-        _DEFAULT_CONFIG_DIR = Path.home() / "AppData" / "Roaming" / "larpfetch"
-else:
-    _xdg = Path(os.environ.get("XDG_CONFIG_HOME", ""))
-    if _xdg.is_absolute():
-        _DEFAULT_CONFIG_DIR = _xdg / "larpfetch"
-    else:
-        _DEFAULT_CONFIG_DIR = Path.home() / ".config" / "larpfetch"
+def _default_config_dir() -> Path:
+    """Return the platform-specific default config directory."""
+    if sys.platform == "darwin":
+        return Path.home() / "Library" / "Application Support" / "larpfetch"
+    if sys.platform == "win32":
+        appdata = Path(os.environ.get("APPDATA", ""))
+        if appdata.is_absolute():
+            return appdata / "larpfetch"
+        return Path.home() / "AppData" / "Roaming" / "larpfetch"
+    xdg = Path(os.environ.get("XDG_CONFIG_HOME", ""))
+    if xdg.is_absolute():
+        return xdg / "larpfetch"
+    return Path.home() / ".config" / "larpfetch"
 
-DEFAULT_CONFIG_PATH = _DEFAULT_CONFIG_DIR / "config.toml"
+
+DEFAULT_CONFIG_PATH = _default_config_dir() / "config.toml"
 
 
 def _resolve_config_path(explicit: str | None = None) -> Path | None:

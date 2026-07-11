@@ -48,7 +48,7 @@ def _parse_sets(sets: list[str]) -> dict[str, str]:
     return result
 
 
-def _get_all_profiles(config: dict) -> dict[str, dict[str, str]]:
+def _get_all_profiles(config: dict[str, Any]) -> dict[str, dict[str, str]]:
     """Merge built-in profiles with user config profiles.
 
     User profiles take precedence over built-in profiles.
@@ -58,7 +58,7 @@ def _get_all_profiles(config: dict) -> dict[str, dict[str, str]]:
     return profiles
 
 
-def _list_profiles(config: dict) -> None:
+def _list_profiles(config: dict[str, Any]) -> None:
     """Print available profiles."""
     profiles = _get_all_profiles(config)
     if not profiles:
@@ -85,7 +85,7 @@ def _list_logos(search: str | None = None) -> None:
         print(f"  {name}")
 
 
-def _show_config(config: dict) -> None:
+def _show_config(config: dict[str, Any]) -> None:
     """Print the resolved configuration."""
     default = get_default_profile(config)
     profiles = _get_all_profiles(config)
@@ -120,7 +120,7 @@ def _show_config(config: dict) -> None:
         print("  (defaults)")
 
 
-def _inspect_profile(config: dict, target: str) -> int:
+def _inspect_profile(config: dict[str, Any], target: str) -> int:
     """Print details about a named profile or a profile file.
 
     Returns a process exit code.
