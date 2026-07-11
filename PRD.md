@@ -8,7 +8,7 @@ Tagline: *LARP as any distro, hardware, or machine you want. Because reality is 
 
 ## Maintenance model
 
-larpfetch is built, tested, versioned, and published entirely by autonomous coding agents — no human coding or review. The agent operating manual (workflow, definition of done, versioning/release policy) is [AGENTS.md](AGENTS.md); it is the source of truth for how features are implemented and shipped. All work follows the roadmap themes and the quality gate `just check` (ruff + pytest).
+larpfetch is 100% made by autonomous coding agents — built, tested, versioned, and published with no human coding or review. The agent operating manual (workflow, definition of done, versioning/release policy) is [AGENTS.md](AGENTS.md); it is the source of truth for how features are implemented and shipped. All work follows the roadmap themes and the quality gate `just check` (ruff + pytest).
 
 ## Core principle
 

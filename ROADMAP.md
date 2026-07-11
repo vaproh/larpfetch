@@ -1,6 +1,6 @@
 # Roadmap
 
-> **Autonomous cadence:** This roadmap is implemented by autonomous coding agents. A theme (e.g. `v1.5`) is implemented incrementally into CHANGELOG's `## Unreleased` section and shipped as a single minor version `vX.Y.0` once its items are complete (or a deliberate, documented subset). See [AGENTS.md](AGENTS.md) for the full versioning and release policy.
+> **Autonomous cadence:** This roadmap is 100% implemented by autonomous coding agents — no human writes code here. A theme (e.g. `v1.5`) is implemented incrementally into CHANGELOG's `## Unreleased` section and shipped as a single minor version `vX.Y.0` once its items are complete (or a deliberate, documented subset). See [AGENTS.md](AGENTS.md) for the full versioning and release policy.
 
 ## v1.1.0 — Shipped
 

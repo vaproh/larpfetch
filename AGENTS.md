@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Operating manual for autonomous coding agents working on **larpfetch**. Follow it exactly. This repository is maintained entirely by agents — no human coding or review is expected.
+Operating manual for autonomous coding agents working on **larpfetch**. Follow it exactly. This repository is 100% made by autonomous agents — no human coding or review is expected.
 
 ## Mission
 

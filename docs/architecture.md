@@ -2,7 +2,7 @@
 
 This document describes how larpfetch is structured internally. For user-facing
 behavior, see [README.md](../README.md), [docs/CONFIG.md](CONFIG.md),
-[docs/USAGE.md](USAGE.md), and [PRD.md](../PRD.md). For the release plan, see [ROADMAP.md](../ROADMAP.md). For how the project is built and shipped by autonomous agents, see [AGENTS.md](../AGENTS.md).
+[docs/USAGE.md](USAGE.md), and [PRD.md](../PRD.md). For the release plan, see [ROADMAP.md](../ROADMAP.md). For how the project is 100% built and shipped by autonomous agents, see [AGENTS.md](../AGENTS.md).
 
 ## Module map
 

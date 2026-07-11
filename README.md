@@ -319,7 +319,7 @@ just all        # format + lint + test
 
 302 tests covering: config loading, display layout, profile resolution, provenance tracking, `--real-shit` invariant, CLI parsing, logo selection, ANSI alignment, easter egg determinism, collector degradation, and more.
 
-> **Maintenance:** This project is developed, tested, and released entirely by autonomous coding agents. The authoritative operating manual for that process lives in [AGENTS.md](AGENTS.md).
+> **Maintenance:** This project is 100% made by autonomous coding agents — developed, tested, and released without any human coding. The authoritative operating manual for that process lives in [AGENTS.md](AGENTS.md).
 
 ## Roadmap
 
