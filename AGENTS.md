@@ -142,17 +142,23 @@ Python 3.11+, `pyproject.toml`, `src/` layout, console script `larpfetch`, runti
 ## Publishing
 
 ```bash
-# Load PyPI token from .env and publish
+# 1. Commit the release work, then tag and push
+git tag vX.Y.Z && git push origin main && git push origin vX.Y.Z
+
+# 2. Load PyPI token from .env and publish to PyPI
 export $(grep -v '^#' .env | xargs) && just publish
 
-# Or for a dry run:
-export $(grep -v '^#' .env | xargs) && just publish-dry
+# 3. Publish the GitHub release for the same tag
+gh release create vX.Y.Z --title "vX.Y.Z: <short title>" --notes "$(cat <<'EOF'
+<release notes>
+EOF
+)"
 
-# Tag the release
-git tag vX.Y.Z && git push origin vX.Y.Z
+# Dry run of the PyPI publish:
+export $(grep -v '^#' .env | xargs) && just publish-dry
 ```
 
-Do not overengineer this. It is a fetch tool that lies.
+The GitHub release title and notes should summarize the new features for that version. Do not overengineer this. It is a fetch tool that lies.
 
 ## Demo GIF generation
 
