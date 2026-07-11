@@ -76,6 +76,28 @@ class TestIntegrationWithConfig:
         captured = capsys.readouterr()
         assert "Arch Linux" in captured.out
 
+    def test_config_disk_info_default(self, capsys, tmp_path, monkeypatch):
+        from collections import namedtuple
+        from types import SimpleNamespace
+
+        import psutil
+
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+        monkeypatch.setattr(
+            psutil, "disk_partitions", lambda all=False: [DiskPart("/dev/sda1", "/", "ext4", "rw")]  # noqa: A002
+        )
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: SimpleNamespace(used=1, total=2))
+
+        cfg = tmp_path / "config.toml"
+        cfg.write_text('[default]\ndisk_info = "/"\n')
+        main(["--config", str(cfg)])
+        captured = capsys.readouterr()
+        # disk detail shown from config without passing --disk-info
+        assert "Disk Detail:" in captured.out
+        assert "/:" in captured.out
+        # disk_info must not leak as a displayed field
+        assert "Disk Info:" not in captured.out
+
     def test_custom_profile_selected(self, capsys, sample_config):
         main(["--config", str(sample_config), "-p", "nasa"])
         captured = capsys.readouterr()

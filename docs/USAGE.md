@@ -117,7 +117,7 @@ separator, and hide-unavailable. CLI density presets override
 |------|-------------|
 | `--shell-info` | Include shell version in the Shell field |
 | `--gpu-info` | Include GPU driver details in the GPU field |
-| `--disk-info [physical\|all]` | Show a per-disk breakdown. `physical` (default) lists only real disks; `all` also includes virtual mounts (tmpfs, proc, …) |
+| `--disk-info [home\|physical\|all\|PATH]` | Per-disk breakdown. `home` (default) = disk holding `$HOME`, `physical` = all real disks, `all` = include virtual mounts (tmpfs, proc, …), `PATH` = that specific disk |
 
 ### Output formats
 

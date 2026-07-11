@@ -14,7 +14,7 @@
 [![Logos from fastfetch](https://img.shields.io/badge/logos-fastfetch-FF6B6B?style=flat-square)](https://github.com/fastfetch-cli/fastfetch)
 [![100% Autonomous](https://img.shields.io/badge/100%25%20made%20by-autonomous%20agents-9b59b6?style=flat-square)](AGENTS.md)
 
-A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 10 built-in LARP profiles.
+A cross-platform terminal fetch utility that detects real system information and lets you lie about it. Ships with 533 colored ASCII logos from fastfetch and 13 built-in LARP profiles.
 
 ## Demo
 
@@ -66,7 +66,8 @@ larpfetch --diff-real        # Show only what differs from reality
 larpfetch --show-sources     # Show where each value came from
 larpfetch --shell-info       # Show shell version
 larpfetch --gpu-info         # Show GPU driver details
-larpfetch --disk-info        # Show per-disk breakdown (physical disks)
+larpfetch --disk-info        # Show per-disk breakdown (disk holding $HOME by default)
+larpfetch --disk-info /data   # Show only the /data disk
 larpfetch --disk-info all     # Include virtual mounts (tmpfs, proc, …)
 larpfetch --minimal          # Show a short field set
 larpfetch --compact          # Show standard fields without the logo
@@ -263,7 +264,8 @@ larpfetch --diff-real                  # Show only fields that differ from real
 larpfetch --show-sources               # Show where each value came from
 larpfetch --shell-info                 # Show shell version
 larpfetch --gpu-info                   # Show GPU driver details
-larpfetch --disk-info                  # Show per-disk breakdown (physical)
+larpfetch --disk-info                  # Show per-disk breakdown ($HOME disk by default)
+larpfetch --disk-info /data            # Show only the /data disk
 larpfetch --disk-info all              # Include virtual mounts
 larpfetch --minimal                    # Short field preset
 larpfetch --compact                    # Standard fields, no logo

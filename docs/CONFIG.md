@@ -18,6 +18,15 @@ A TOML file with four sections: `[default]`, `[profiles.NAME]`, `[appearance]`, 
 
 Sets fallback values for any field not overridden by a profile or CLI. Supports all known fields:
 
+You can also set the default disk-breakdown behavior with `disk_info` (it is **not** a display field — it controls `--disk-info`):
+
+```toml
+[default]
+disk_info = "home"   # one of: home, physical, all, or an absolute PATH like "/data"
+```
+
+When `disk_info` is set, the per-disk breakdown is shown by default using that mode; passing `--disk-info` (with or without a value) overrides it.
+
 | Field | Example |
 |-------|---------|
 | `username` | `"vaproh"` |

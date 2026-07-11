@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.5.1
+
+`--disk-info` disk selection: show the `$HOME` disk by default, or any disk by path, and make it configurable.
+
+- **`--disk-info` defaults to the `$HOME` disk**: with no argument it now shows only the disk that holds `$HOME` (e.g. `/home`), instead of every physical disk.
+- **Choose a specific disk by path**: pass an absolute path (e.g. `--disk-info /data`) to show only that disk's usage.
+- **Configurable default**: set `disk_info` under `[default]` in your config (value `home`, `physical`, `all`, or a `PATH`) to choose the default breakdown; `--disk-info` overrides it.
+- Retains `physical` (all real disks) and `all` (include virtual mounts like tmpfs) modes.
+- **Built-in profile expansion**: all profiles enriched with the new fields
+  (`architecture`, `resolution`, `terminal`, `wm`, `compositor`, `package_count`)
+  and 3 new profiles added (`steamdeck`, `ghostbsd`, `android`) for 13 in total.
+- **Renderer alignment fix**: each logo line is now right-padded to a uniform width
+  so the info column lines up flush with every logo, regardless of the art's shape.
+
 ## v1.5.0
 
 Daily-driver system information: battery state, display resolution, terminal/WM/compositor, device & motherboard model, multi-GPU, and multi-disk modes.

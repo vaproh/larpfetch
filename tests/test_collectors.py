@@ -1,11 +1,13 @@
 """Tests for collector modules."""
 
 from collections import namedtuple
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import psutil
 
 from larpfetch.collectors.common import (
+    _collect_disk_detail,
     _detect_compositor,
     _detect_device_model,
     _detect_gpus_linux,
@@ -25,6 +27,9 @@ from larpfetch.collectors.common import (
     collect_platform,
 )
 
+
+def _usage(used: int, total: int) -> SimpleNamespace:
+    return SimpleNamespace(used=used, total=total)
 
 class TestFmtBytes:
     def test_bytes(self):
@@ -583,6 +588,78 @@ class TestCollectAll:
         monkeypatch.setattr(psutil, "disk_partitions", fake_partitions)
         info = collect_all(disk_mode="all")
         assert "/tmp" in info.get("disk_detail")  # virtual mounts included
+
+    def test_disk_info_home_shows_only_home(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+        parts = [
+            DiskPart("/dev/sda1", "/", "ext4", "rw"),
+            DiskPart("/dev/sda2", "/home", "ext4", "rw"),
+            DiskPart("/dev/sdb1", "/data", "ext4", "rw"),
+        ]
+        monkeypatch.setattr(psutil, "disk_partitions", lambda all=False: parts)  # noqa: A002
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: _usage(1_000, 10_000))
+        monkeypatch.setenv("HOME", "/home")
+        info = collect_all(disk_mode="home")
+        detail = info.get("disk_detail")
+        assert detail is not None and "/home" in detail
+        assert "/data" not in detail and "/:" not in detail
+
+    def test_disk_info_path_shows_only_that_disk(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+        parts = [
+            DiskPart("/dev/sda1", "/", "ext4", "rw"),
+            DiskPart("/dev/sdb1", "/data", "ext4", "rw"),
+        ]
+        monkeypatch.setattr(psutil, "disk_partitions", lambda all=False: parts)  # noqa: A002
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: _usage(1_000, 10_000))
+        info = collect_all(disk_mode="/data")
+        detail = info.get("disk_detail")
+        assert detail is not None and "/data" in detail
+        assert "/:" not in detail
+
+    def test_disk_info_unknown_mode_no_detail(self):
+        info = collect_all(disk_mode="bogus")
+        assert info.get("disk_detail") in (None, "")
+
+    def test_collect_disk_detail_home(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+        parts = [
+            DiskPart("/dev/sda1", "/", "ext4", "rw"),
+            DiskPart("/dev/sda2", "/home", "ext4", "rw"),
+        ]
+        monkeypatch.setenv("HOME", "/home")
+        monkeypatch.setattr(psutil, "disk_partitions", lambda all=False: parts)  # noqa: A002
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: _usage(1_000, 10_000))
+        detail = _collect_disk_detail("home")
+        assert len(detail) == 1 and detail[0].startswith("/home")
+
+    def test_collect_disk_detail_path(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+        parts = [
+            DiskPart("/dev/sda1", "/", "ext4", "rw"),
+            DiskPart("/dev/sdb1", "/data", "ext4", "rw"),
+        ]
+        monkeypatch.setattr(psutil, "disk_partitions", lambda all=False: parts)  # noqa: A002
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: _usage(1_000, 10_000))
+        detail = _collect_disk_detail("/data")
+        assert len(detail) == 1 and detail[0].startswith("/data")
+
+    def test_collect_disk_detail_physical_filters_virtual(self, monkeypatch):
+        DiskPart = namedtuple("DiskPart", ["device", "mountpoint", "fstype", "opts"])
+
+        def fake_partitions(all=False):  # noqa: A002
+            if all:
+                return [
+                    DiskPart("/dev/sda1", "/", "ext4", "rw"),
+                    DiskPart("tmpfs", "/tmp", "tmpfs", "rw"),
+                ]
+            return [DiskPart("/dev/sda1", "/", "ext4", "rw")]
+
+        monkeypatch.setattr(psutil, "disk_partitions", fake_partitions)
+        monkeypatch.setattr(psutil, "disk_usage", lambda p: _usage(1_000, 10_000))
+        detail = _collect_disk_detail("physical")
+        assert any(d.startswith("/") and "tmp" not in d for d in detail)
+        assert not any("tmp" in d for d in detail)
 
     def test_gpu_info_flag_passed(self):
         # smoke test: no crash

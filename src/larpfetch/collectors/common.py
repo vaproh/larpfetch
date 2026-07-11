@@ -12,6 +12,7 @@ import sys
 import time
 from collections import OrderedDict
 from pathlib import Path
+from typing import Any
 
 try:
     import psutil
@@ -339,6 +340,53 @@ def _detect_motherboard() -> str:
     return ""
 
 
+def _path_on_partition(path: str, mountpoint: str) -> bool:
+    """Return True if ``path`` lives on the filesystem mounted at ``mountpoint``."""
+    mountpoint = mountpoint.rstrip("/")
+    if path == mountpoint:
+        return True
+    return path.startswith(mountpoint + "/") if mountpoint else path.startswith("/")
+
+
+def _most_specific_partition(parts: list[Any]) -> list[Any]:
+    """Keep only the partition with the longest (most specific) mountpoint."""
+    if not parts:
+        return []
+    best = max(parts, key=lambda p: len(p.mountpoint.rstrip("/")))
+    return [best]
+
+
+def _collect_disk_detail(mode: str) -> list[str]:
+    """Build per-disk breakdown strings for the requested mode.
+
+    ``mode`` is one of: ``physical`` (all real disks), ``all`` (including virtual
+    mounts), ``home`` (the disk holding ``$HOME``), or an absolute path (that
+    specific disk). Returns an empty list when psutil is unavailable or nothing
+    matches.
+    """
+    if psutil is None:
+        return []
+    all_mounts = mode == "all"
+    parts = list(psutil.disk_partitions(all=all_mounts))
+    if mode == "home":
+        target = os.environ.get("HOME", "/home")
+        parts = [p for p in parts if _path_on_partition(target, p.mountpoint)]
+        parts = _most_specific_partition(parts)
+    elif mode and mode.startswith("/"):
+        parts = [p for p in parts if _path_on_partition(mode, p.mountpoint)]
+        parts = _most_specific_partition(parts)
+    detail = []
+    for part in parts:
+        try:
+            usage = psutil.disk_usage(part.mountpoint)
+            detail.append(
+                f"{part.mountpoint}: {_fmt_bytes(usage.used)}/{_fmt_bytes(usage.total)}"
+            )
+        except Exception:
+            continue
+    return detail
+
+
 def collect_common(disk_mode: str | None = None) -> SystemInfo:
     """Collect information common across all platforms.
 
@@ -390,20 +438,11 @@ def collect_common(disk_mode: str | None = None) -> SystemInfo:
         pass
 
     # Per-disk breakdown
-    if disk_mode in ("physical", "all") and psutil is not None:
+    if disk_mode in ("physical", "all", "home") or (disk_mode and disk_mode.startswith("/")):
         try:
-            all_mounts = disk_mode == "all"
-            parts = []
-            for part in psutil.disk_partitions(all=all_mounts):
-                try:
-                    usage = psutil.disk_usage(part.mountpoint)
-                    parts.append(
-                        f"{part.mountpoint}: {_fmt_bytes(usage.used)}/{_fmt_bytes(usage.total)}"
-                    )
-                except Exception:
-                    continue
-            if parts:
-                info.set("disk_detail", " | ".join(parts))
+            detail = _collect_disk_detail(disk_mode)
+            if detail:
+                info.set("disk_detail", " | ".join(detail))
         except Exception:
             pass
 

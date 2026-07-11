@@ -59,6 +59,7 @@ Cover the most useful missing real-system fields.
 - Better multi-GPU handling (integrated + dedicated + eGPU) ✅
 - Better multi-disk handling (per-disk breakdown, filter virtual mounts) ✅
 - `--disk-info all` / `--disk-info physical` ✅
+- `--disk-info` defaults to the `$HOME` disk, accepts a PATH, and is configurable via `[default].disk_info` (v1.5.1) ✅
 
 ## v1.6 — Themes and Visual Polish
 

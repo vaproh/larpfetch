@@ -48,6 +48,19 @@ def _parse_sets(sets: list[str]) -> dict[str, str]:
     return result
 
 
+def resolve_disk_mode(
+    cli_value: str | None, default_profile: dict[str, str]
+) -> str | None:
+    """Pick the disk-breakdown mode.
+
+    The CLI ``--disk-info`` value wins; otherwise the ``[default].disk_info``
+    config key is used. The config key is consumed (popped) so it is not
+    treated as a display field. Returns ``None`` when disk detail is disabled.
+    """
+    cfg = default_profile.pop("disk_info", None)
+    return cli_value if cli_value is not None else cfg
+
+
 def _get_all_profiles(config: dict[str, Any]) -> dict[str, dict[str, str]]:
     """Merge built-in profiles with user config profiles.
 
@@ -285,10 +298,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--disk-info",
         nargs="?",
-        const="physical",
+        const="home",
         default=None,
-        choices=["all", "physical"],
-        help="Show per-disk breakdown (physical = real disks, all = include virtual mounts)",
+        metavar="[home|physical|all|PATH]",
+        help=(
+            "Show a per-disk breakdown. 'home' (default) = disk holding $HOME, "
+            "'physical' = all real disks, 'all' = include virtual mounts, "
+            "or an absolute PATH to show that specific disk."
+        ),
     )
     parser.add_argument(
         "--minimal",
@@ -416,6 +433,10 @@ def main(argv: Sequence[str] | None = None) -> None:
         print(f"Error loading config: {e}", file=sys.stderr)
         sys.exit(1)
 
+    # Resolve the disk-breakdown mode: CLI --disk-info wins, else [default].disk_info.
+    default_profile = get_default_profile(config)
+    disk_mode = resolve_disk_mode(args.disk_info, default_profile)
+
     # --list-profiles
     if args.list_profiles:
         _list_profiles(config)
@@ -448,7 +469,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     real = collect_all(
         shell_info=args.shell_info,
         gpu_info=args.gpu_info,
-        disk_mode=args.disk_info,
+        disk_mode=disk_mode,
     )
 
     # --export-profile: dump real detected system as a shareable profile
@@ -458,7 +479,6 @@ def main(argv: Sequence[str] | None = None) -> None:
         return
 
     # Resolve display identity
-    default_profile = get_default_profile(config)
     selected_profile = None
     if not args.real_shit:
         # --profile-file loads a standalone profile

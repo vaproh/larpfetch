@@ -203,6 +203,9 @@ def render(
     logo = _apply_logo_colors(logo_raw, logo_colors, use_color)
     logo_height = len(logo)
     logo_width = cols if cols is not None else get_logo_width(logo)
+    # Right-pad each logo line to a uniform width so the art forms a clean
+    # block and the info column lines up flush with every logo line.
+    logo = [line + " " * (logo_width - _visible_len(line)) for line in logo]
 
     # Build info lines with display config
     display_items = info.display_items(display_config)

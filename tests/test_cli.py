@@ -2,7 +2,7 @@
 
 import pytest
 
-from larpfetch.cli import build_parser, main
+from larpfetch.cli import build_parser, main, resolve_disk_mode
 
 
 class TestBuildParser:
@@ -106,7 +106,7 @@ class TestBuildParser:
     def test_disk_info_flag(self):
         parser = build_parser()
         args = parser.parse_args(["--disk-info"])
-        assert args.disk_info == "physical"
+        assert args.disk_info == "home"
 
     def test_disk_info_all_flag(self):
         parser = build_parser()
@@ -117,6 +117,25 @@ class TestBuildParser:
         parser = build_parser()
         args = parser.parse_args(["--disk-info", "physical"])
         assert args.disk_info == "physical"
+
+    def test_disk_info_path_flag(self):
+        parser = build_parser()
+        args = parser.parse_args(["--disk-info", "/data"])
+        assert args.disk_info == "/data"
+
+    def test_resolve_disk_mode_cli_wins(self):
+        profile = {"os": "Arch", "disk_info": "/data"}
+        assert resolve_disk_mode("physical", profile) == "physical"
+        # config key consumed, not left as a display field
+        assert "disk_info" not in profile
+
+    def test_resolve_disk_mode_falls_back_to_config(self):
+        profile = {"disk_info": "/data"}
+        assert resolve_disk_mode(None, profile) == "/data"
+
+    def test_resolve_disk_mode_none_when_unset(self):
+        profile = {"os": "Arch"}
+        assert resolve_disk_mode(None, profile) is None
 
     def test_minimal_flag(self):
         parser = build_parser()
