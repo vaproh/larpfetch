@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 from larpfetch.collectors.common import (
     _detect_compositor,
     _detect_device_model,
+    _detect_gpus_linux,
     _detect_motherboard,
     _detect_resolution,
     _detect_resolution_darwin,
@@ -477,6 +478,35 @@ class TestCollectLinux:
 
         info = _collect_linux()
         assert info.get("de") == "Hyprland"
+
+    def test_multi_gpu_detection(self):
+        lspci_output = (
+            "00:02.0 VGA compatible controller: Intel Corporation HD Graphics 630 (rev 04)\n"
+            "01:00.0 3D controller: NVIDIA Corporation GA102 [GeForce RTX 3090] (rev a1)\n"
+        )
+        mock_result = MagicMock()
+        mock_result.returncode = 0
+        mock_result.stdout = lspci_output
+        with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
+            from larpfetch.collectors.common import _collect_linux
+
+            info = _collect_linux()
+            gpu = info.get("gpu")
+            assert "Intel" in gpu and "NVIDIA" in gpu
+            assert " | " in gpu
+            assert "(rev" not in gpu
+
+    def test_detect_gpus_linux_returns_list(self):
+        lspci_output = (
+            "00:02.0 VGA compatible controller: Intel Corporation HD Graphics 630\n"
+            "01:00.0 Display controller: NVIDIA Corporation TU117M [GeForce GTX 1650]\n"
+        )
+        mock_result = MagicMock(returncode=0, stdout=lspci_output)
+        with patch("larpfetch.collectors.common.subprocess.run", return_value=mock_result):
+            gpus = _detect_gpus_linux()
+        assert len(gpus) == 2
+        assert gpus[0] == "Intel Corporation HD Graphics 630"
+        assert "GeForce GTX 1650" in gpus[1]
 
 
 class TestCollectWindows:

@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- **Multi-GPU handling** (v1.5): GPU detection now lists every graphics
+  controller (integrated + dedicated + eGPU) joined with ` | ` instead of
+  stopping at the first match. `--gpu-info` still appends driver details.
 - **Device / motherboard model** (v1.5): new `device` and `motherboard` fields.
   Linux reads DMI `product_name` / `board_vendor`+`board_name`; macOS uses
   `sysctl hw.model`; Windows queries WMI via PowerShell. All degrade gracefully.

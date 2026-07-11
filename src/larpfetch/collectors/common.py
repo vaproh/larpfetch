@@ -555,7 +555,24 @@ def _collect_linux(
     if de:
         info.set("de", de)
 
-    # GPU via lspci (best-effort)
+    # GPU(s) via lspci (best-effort, multi-GPU aware)
+    try:
+        gpus = _detect_gpus_linux()
+        if gpus:
+            info.set("gpu", " | ".join(gpus))
+    except Exception:
+        pass
+
+    return info
+
+
+def _detect_gpus_linux() -> list[str]:
+    """Return all detected GPU descriptions from ``lspci``.
+
+    Matches VGA/3D/display controllers (integrated, dedicated, eGPU). Returns
+    an empty list when ``lspci`` is unavailable or yields nothing.
+    """
+    gpus: list[str] = []
     try:
         result = subprocess.run(
             ["lspci"],
@@ -563,23 +580,20 @@ def _collect_linux(
             text=True,
             timeout=3,
         )
-        if result.returncode == 0:
-            for line in result.stdout.splitlines():
-                lower = line.lower()
-                if "vga" in lower or "3d" in lower or "display" in lower:
-                    # Format: "XX:XX.X Class: vendor device"
-                    parts = line.split(": ", 1)
-                    if len(parts) >= 2:
-                        gpu_desc = parts[1]
-                        # Trim the trailing (rev xx) if present
-                        if " (" in gpu_desc:
-                            gpu_desc = gpu_desc[: gpu_desc.rfind(" (")]
-                        info.set("gpu", gpu_desc)
-                        break
+        if result.returncode != 0:
+            return gpus
+        for line in result.stdout.splitlines():
+            lower = line.lower()
+            if "vga" in lower or "3d" in lower or "display" in lower:
+                parts = line.split(": ", 1)
+                if len(parts) >= 2:
+                    gpu_desc = parts[1]
+                    if " (" in gpu_desc:
+                        gpu_desc = gpu_desc[: gpu_desc.rfind(" (")]
+                    gpus.append(gpu_desc)
     except Exception:
         pass
-
-    return info
+    return gpus
 
 
 def _collect_macos(
